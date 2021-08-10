@@ -29,8 +29,14 @@ public class CardJsonMaker : EditorWindow
 
         using (new GUILayout.VerticalScope())
         {
-
-            jsonProfile.name = (CardName)EditorGUILayout.EnumPopup(jsonProfile.name);
+            using (new GUILayout.HorizontalScope())
+            {
+                jsonProfile.name = (CardName)EditorGUILayout.EnumPopup(jsonProfile.name);
+                if (GUILayout.Button("読み込む"))
+                {
+                    Read();
+                }
+            }
             jsonProfile.statusRequirement = (CharacterStatus)EditorGUILayout.EnumFlagsField(jsonProfile.statusRequirement);
             jsonProfile.attribute = (AbilityAttribute)EditorGUILayout.EnumFlagsField(jsonProfile.attribute);
             jsonProfile.defaultWeight = EditorGUILayout.IntField("DefaultWeight", jsonProfile.defaultWeight);
@@ -39,11 +45,6 @@ public class CardJsonMaker : EditorWindow
             if (GUILayout.Button("生成"))
             {
                 Write();
-            }
-
-            if (GUILayout.Button("読み込む"))
-            {
-                Read();
             }
         }
     }
