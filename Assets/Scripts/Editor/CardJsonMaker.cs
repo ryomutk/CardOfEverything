@@ -7,7 +7,7 @@ using Actor;
 //カード向けのJSONを作るためのエディタ拡張
 public class CardJsonMaker : EditorWindow
 {
-    CardJsonProfile jsonProfile;
+    CardViewProfile jsonProfile;
     GUILayoutOption[] options = new[] {
             GUILayout.Width (64),
             GUILayout.Height (64)};
@@ -24,7 +24,7 @@ public class CardJsonMaker : EditorWindow
     {
         if (jsonProfile == null)
         {
-            jsonProfile = new CardJsonProfile();
+            jsonProfile = new CardViewProfile();
         }
 
         using (new GUILayout.VerticalScope())
@@ -34,7 +34,7 @@ public class CardJsonMaker : EditorWindow
                 jsonProfile.name = (CardName)EditorGUILayout.EnumPopup(jsonProfile.name);
                 if (GUILayout.Button("読み込む"))
                 {
-                    Read();
+                    jsonProfile = CardProfileBuilder.Get(jsonProfile.name);
                 }
             }
             jsonProfile.statusRequirement = (CharacterStatus)EditorGUILayout.EnumFlagsField(jsonProfile.statusRequirement);
@@ -42,6 +42,7 @@ public class CardJsonMaker : EditorWindow
             jsonProfile.defaultWeight = EditorGUILayout.IntField("DefaultWeight", jsonProfile.defaultWeight);
             jsonProfile.thumbnail = (Sprite)EditorGUILayout.ObjectField(jsonProfile.thumbnail, typeof(Sprite), false, options);
             jsonProfile.flavorText = EditorGUILayout.TextArea(jsonProfile.flavorText);
+            jsonProfile.summary = EditorGUILayout.TextArea(jsonProfile.summary);
             if (GUILayout.Button("生成"))
             {
                 Write();
@@ -51,26 +52,17 @@ public class CardJsonMaker : EditorWindow
 
     void Write()
     {
-        var data = JsonHelper.GetData<CardJsonProfile>(jsonProfile.name.ToString());
+        var data = JsonHelper.GetData<CardViewProfile>(jsonProfile.name.ToString());
 
         if (data == null)
         {
-            JsonHelper.SaveData<CardJsonProfile>(jsonProfile, jsonProfile.name.ToString());
+            JsonHelper.SaveData<CardViewProfile>(jsonProfile, jsonProfile.name.ToString());
             return;
         }
 
         //オーバーライト未実装
-        JsonHelper.SaveData<CardJsonProfile>(jsonProfile, jsonProfile.name.ToString());
+        JsonHelper.SaveData<CardViewProfile>(jsonProfile, jsonProfile.name.ToString());
 
     }
 
-    void Read()
-    {
-        var data = JsonHelper.GetData<CardJsonProfile>((jsonProfile.name.ToString()));
-
-        if (data != null)
-        {
-            jsonProfile = data;
-        }
-    }
 }

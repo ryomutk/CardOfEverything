@@ -5,7 +5,7 @@ namespace Effects
 {
     public interface IVisualEffect
     {
-        event Action onCompleate;
+        bool compleated{get;}
         void Execute(RendererGetter rendererGetter, AudioSource audio);
         bool dontDisturb { get; }
     }

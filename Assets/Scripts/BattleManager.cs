@@ -4,20 +4,34 @@ using System.Collections;
 using Utility;
 using Trigger;
 using Actor;
+using Effects;
 
 public delegate void CharacterAction(Character target);
 
+
+[RequireComponent(typeof(AudioSource),typeof(RendererGetter))]
 public class BattleManager:Singleton<BattleManager>
 {
     List<IInteraptor> interaptorQueue;
-    VisualEffectQueue viewQueue;
-    //InputQueueはStaticクラス。
-
+    VisualEffectQueue battleQueue;
+    
     
 
     void Start()
     {
-        viewQueue = VisualEffectQueue.instance;
+        var audio = GetComponent<AudioSource>();
+        var getter = GetComponent<RendererGetter>();
+        battleQueue = new VisualEffectQueue(getter,audio,StartCoroutine);
+    }
+
+    void Update()
+    {
+        ButtonActionQueue.instance.Trigger();
+    }
+
+    public void RegisterFX(IVisualEffect effect)
+    {
+        battleQueue.RegisterFX(effect);
     }
 
 

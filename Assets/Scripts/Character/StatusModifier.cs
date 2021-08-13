@@ -17,7 +17,7 @@ namespace Actor
 
         public virtual void Modify(CharacterStatus status)
         {
-
+            
         }
     }
 }

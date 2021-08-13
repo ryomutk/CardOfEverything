@@ -2,19 +2,20 @@ using Utility.ObjPool;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using Utility;
 
 public class RendererGetter:MonoBehaviour
 {
     InstantPool<Image> imagePool;
-    InstantPool<TextMeshPro> textPool;
+    InstantPool<TMP_Text> textPool;
 
-    [SerializeField] TextMeshPro rawTextPref;
+    [SerializeField] TMP_Text rawTextPref;
     [SerializeField] Image rawImageObj;
 
     void Start()
     {
         imagePool = new InstantPool<Image>();
-        textPool = new InstantPool<TextMeshPro>();
+        textPool = new InstantPool<TMP_Text>();
         
         textPool.CreatePool(rawTextPref,10);
         imagePool.CreatePool(rawImageObj,10);
@@ -25,7 +26,7 @@ public class RendererGetter:MonoBehaviour
         return imagePool.GetObj();
     }
 
-    public TextMeshPro GetTextObj()
+    public TMP_Text GetTextObj()
     {
         return textPool.GetObj();
     }

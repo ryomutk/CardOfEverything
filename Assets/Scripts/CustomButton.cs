@@ -1,72 +1,115 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.EventSystems;
 
-public delegate void ButtonAction();
-public class CustomButton : MonoBehaviour
+public delegate void ButtonAction(InputArg arg);
+public class CustomButton : UIBehaviour
 {
-    public Transform home;
-    public event ButtonAction onPointerDown;
-    public event ButtonAction onHover;
-    public event ButtonAction onOffHover;
-    public event ButtonAction onPointerUp;
-    public event ButtonAction onClick;
+    public event ButtonAction buttonEvent;
 
     KeyCode[] observeKeys = new KeyCode[] { KeyCode.Mouse0, KeyCode.Mouse1, KeyCode.Mouse3 };
-
     ButtonAction nullAction;
+    InputArg arg = new InputArg();
+
+
 
     public bool clearEventsOnDisable = true;
 
-    void Start()
+    protected override void Start()
     {
-        nullAction = () => { };
+        base.Start();
+        nullAction = (x) => { };
     }
 
-    public void AttachSelf(Transform target,Transform home)
+    public void AttachSelf(GameObject target)
     {
-        this.home = home;
-        transform.SetParent(target);
+        target.AddComponent<HomingInstinct>().ChangeParent(transform,target);
     }
+
 
     public void OnPointerDown()
     {
-        ButtonActionQueue.RegisterAction(onPointerDown);
+        for (int i = 0; i < observeKeys.Length; i++)
+        {
+            if (Input.GetKeyDown(observeKeys[i]))
+            {
+                arg.key = observeKeys[i];
+                break;
+            }
+        }
+
+        arg.type = InputType.pointerDown;
+
+        ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
     }
 
     public void OnHover()
     {
-        ButtonActionQueue.RegisterAction(onHover);
+        arg.type = InputType.hoverStart;
+        arg.key = KeyCode.None;
+        ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
     }
 
     public void OnOffHover()
     {
-        ButtonActionQueue.RegisterAction(onOffHover);
+        arg.type = InputType.hoverEnd;
+        arg.key = KeyCode.None;
+        ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
     }
 
     public void OnPointerUp()
     {
-        ButtonActionQueue.RegisterAction(onPointerUp);
+        arg.type = InputType.pointerUp;
+
+        for (int i = 0; i < observeKeys.Length; i++)
+        {
+            if (Input.GetKeyUp(observeKeys[i]))
+            {
+                arg.key = observeKeys[i];
+                break;
+            }
+        }
+
+        ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
     }
 
     public void OnClick()
     {
-        ButtonActionQueue.RegisterAction(onClick);
-    }
 
-    void OnDisable()
-    {
-        if (clearEventsOnDisable)
+        arg.type = InputType.Click;
+
+        for (int i = 0; i < observeKeys.Length; i++)
         {
-            onPointerDown = nullAction;
-            onPointerUp = nullAction;
-            onClick = nullAction;
-            onHover = nullAction;
-            onOffHover = nullAction;
+            if (Input.GetKey(observeKeys[i]))
+            {
+                arg.key = observeKeys[i];
+                break;
+            }
         }
 
-        transform.SetParent(home);
+        ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
+    }
+
+    //わが子がいなくなったら
+    void OnTransformChildrenChanged()
+    {
+        if(transform.childCount == 0)
+        {
+            //死ぬ
+            gameObject.SetActive(false);
+        }
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        if (clearEventsOnDisable)
+        {
+            buttonEvent = nullAction;
+        }
+
+        //transform.SetParent(home);
     }
 
 }

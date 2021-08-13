@@ -1,29 +1,79 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using Utility;
 using Effects;
+using System;
 
 namespace Trigger
 {
-    [RequireComponent(typeof(AudioSource), typeof(RendererGetter))]
-    public class VisualEffectQueue : Singleton<VisualEffectQueue>
+    public class VisualEffectQueue : IInteraptor
     {
-        static List<IVisualEffect> queue;
+        public bool finished { get; private set; }
+        List<IVisualEffect> queue;
         RendererGetter getterMan;
         AudioSource audioSource;
+        Func<IEnumerator,Coroutine> StartCoroutine;
 
-        void Start()
+        public VisualEffectQueue(RendererGetter getter, AudioSource source,Func<IEnumerator,Coroutine> startCoroutine)
         {
-            getterMan = GetComponent<RendererGetter>();
-            audioSource = GetComponent<AudioSource>();
+            getterMan = getter;
+            audioSource = source;
+            StartCoroutine = startCoroutine;
         }
 
-        public static void RegisterFX(IVisualEffect effect)
+        public void RegisterFX(IVisualEffect effect)
         {
             queue.Add(effect);
         }
 
+        public int Trigger()
+        {
+            var count = queue.Count;
 
+            if (count == 0)
+            {
+                return 0;
+            }
+
+            StartCoroutine(HandleInput());
+
+            return count;
+        }
+
+        IEnumerator HandleInput()
+        {
+            finished = false;
+
+            BattleManager.instance.RegisterInterapt(this);
+
+            while (queue.Count > 0)
+            {
+                if (queue[0].dontDisturb)
+                {
+                    var effect = queue[0];
+                    effect.Execute(getterMan, audioSource);
+                    yield return new WaitUntil(() => effect.compleated);
+                }
+                else
+                {
+                    var effect = queue[0];
+                    effect.Execute(getterMan, audioSource);
+                }
+            }
+
+            yield return StartCoroutine(WaitForAllEffectCompleate());
+            finished = true;
+        }
+
+        IEnumerator WaitForAllEffectCompleate()
+        {
+            while (queue.Count > 0)
+            {
+                yield return new WaitUntil(() => queue[0].compleated);
+                queue.RemoveAt(0);
+            }
+        }
 
     }
 }

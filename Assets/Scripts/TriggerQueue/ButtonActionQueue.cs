@@ -1,23 +1,38 @@
 using System.Collections.Generic;
+using System;
+using Utility;
 
-public static class ButtonActionQueue
+public class ButtonActionQueue:Singleton<ButtonActionQueue>
 {
-    
-    static List<ButtonAction> actionQueue;
+
+    List<Action> actionQueue = new List<Action>();
 
 
-    public static void RegisterAction(ButtonAction action)
+    public void RegisterAction(Action action)
     {
         actionQueue.Add(action);
     }
 
-    public static bool Trigger()
+    public bool Trigger()
     {
-        int count = actionQueue.Count;
-        for(int i = 0;i < count;i++)
+        if (actionQueue == null)
         {
-            actionQueue[0]();
-            actionQueue.RemoveAt(0);
+            actionQueue = new List<Action>();
+        }
+        
+        int count = actionQueue.Count;
+
+        try
+        {
+            for (int i = 0; i < count; i++)
+            {
+                actionQueue[0]();
+                actionQueue.RemoveAt(0);
+            }
+        }
+        catch (System.NullReferenceException)
+        {
+            actionQueue.Clear();
         }
 
         return count != 0;

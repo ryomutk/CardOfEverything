@@ -6,12 +6,14 @@ namespace Effects
     public abstract class ObjectEffect : IVisualEffect
     {
         public GameObject target{get;private set;}
-        public MotionName name {get;private set;}
+        public EffectName name {get;private set;}
         public bool dontDisturb{get;set;}
         public event Action onCompleate;
+        public bool compleated{get;}
 
-        public ObjectEffect(MotionName name,GameObject target,bool dontDisturb = false)
+        public ObjectEffect(EffectName name,GameObject target,bool dontDisturb = false)
         {
+            compleated =false;
             this.name = name;
             this.target = target;
             this.dontDisturb = dontDisturb;

@@ -9,23 +9,31 @@ namespace Actor
     {
         protected abstract IVisualEffect EnterMotion { get; set; }
         protected abstract IVisualEffect ExitMotion { get; set; }
-        
 
+        public abstract int[] actionWeightArray{get;set;}
         public event CharacterAction OnDeath;
 
-        public virtual void ModifyStatus()
-        {
 
+        
+
+
+        //キャラのステータス変更を行いたいときの受付窓口。
+        /// <summary>
+        /// actionWeightArrayはそのまま変更かなー
+        /// </summary>
+        public virtual void ModifyStatus(CharacterStatus target,float amount)
+        {
+            
         }
 
         public virtual void Enter()
         {
-            VisualEffectQueue.RegisterFX(EnterMotion);
+            BattleManager.instance.RegisterFX(EnterMotion);
         }
 
         public virtual void Exit()
         {
-            VisualEffectQueue.RegisterFX(ExitMotion);
+            BattleManager.instance.RegisterFX(ExitMotion);
         }
     }
 }
