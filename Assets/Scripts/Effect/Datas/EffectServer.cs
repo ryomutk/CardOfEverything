@@ -10,6 +10,7 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
     List<GUIMotionData> gUIMotionDataList = new List<GUIMotionData>();
 
     List<ObjectEffectData> objectEffectDatas = new List<ObjectEffectData>();
+    List<TextEffectData> textEffectDatas = new List<TextEffectData>();
     public bool finished { get; private set; }
 
     void Start()
@@ -27,19 +28,20 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
     IEnumerator LoadResource()
     {
         finished = false;
-        yield return StartCoroutine(LoadRequest<GUIMotionData>("GUIMotionData",gUIMotionDataList));
-        yield return StartCoroutine(LoadRequest<ObjectEffectData>("ObjectEffectData",objectEffectDatas));
+        yield return StartCoroutine(LoadRequest<GUIMotionData>("GUIMotionData", gUIMotionDataList));
+        yield return StartCoroutine(LoadRequest<ObjectEffectData>("ObjectEffectData", objectEffectDatas));
+        yield return StartCoroutine(LoadRequest<TextEffectData>("TextEffectData", textEffectDatas));
         finished = true;
     }
 
-    IEnumerator LoadRequest<T>(string fileName,List<T> targetList)
-    where T:class
+    IEnumerator LoadRequest<T>(string fileName, List<T> targetList)
+    where T : class
     {
-        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/Effects/"+fileName);
-        for(int i = 0; i < fileNames.Length;i++)
+        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/Effects/" + fileName);
+        for (int i = 0; i < fileNames.Length; i++)
         {
-            var request = Resources.LoadAsync("Scriptables/Effects/"+fileName+"/"+fileNames[i]);
-            yield return new WaitUntil(()=>request.isDone);
+            var request = Resources.LoadAsync("Scriptables/Effects/" + fileName + "/" + fileNames[i]);
+            yield return new WaitUntil(() => request.isDone);
             targetList.Add(request.asset as T);
         }
     }
@@ -58,6 +60,7 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
         throw new System.DllNotFoundException();
     }
 
+
     public IVisualEffect GetGUIMotion(EffectName name, GameObject target)
     {
         for (int i = 0; i < objectEffectDatas.Count; i++)
@@ -73,7 +76,22 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
 
     }
 
-    public static void GetScreenEffect()
+
+    public IVisualEffect GetTextEffect(EffectName name,Transform target,string contents)
+    {
+        for (int i = 0; i < objectEffectDatas.Count; i++)
+        {
+            if (textEffectDatas[i].name == name)
+            {
+                var effect = textEffectDatas[i];
+                return effect.GetMotion(target,contents);
+            }
+        }
+
+        throw new System.DllNotFoundException();
+    }
+
+    public void GetScreenEffect()
     {
 
     }

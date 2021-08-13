@@ -14,6 +14,12 @@ public class BattleManager:Singleton<BattleManager>
 {
     List<IInteraptor> interaptorQueue;
     VisualEffectQueue battleQueue;
+
+    /// <summary>
+    /// BattleStateが投げられるEvent
+    /// </summary>
+    public event System.Action<BattleState> OnBattleEvent;
+
     
     
 

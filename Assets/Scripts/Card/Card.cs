@@ -6,7 +6,7 @@ namespace CardSystem
     public abstract class Card : MonoBehaviour
     {
         public new CardName name { get { return profile.name; }}
-        public abstract CharacterStatus statusRequirement{get;}
+        public abstract CharacterStates statusRequirement{get;}
         public AbilityAttribute attribute { get { return profile.attribute; }}
         public int defaultWeight { get { return profile.defaultWeight; }}
         public Sprite thumbnail { get { return profile.thumbnail; }}
@@ -17,22 +17,22 @@ namespace CardSystem
         [SerializeField] EffectName exitMotionId = EffectName.exit_card_motion;
         [SerializeField] EffectName selectedMotionId = EffectName.selected_card_motion;
         [SerializeField] EffectName useMotionId = EffectName.use_card_motion;
-        IVisualEffect enterMotion;
-        IVisualEffect exitMotion;
-        IVisualEffect selectedMotion;
-        IVisualEffect useMotion;
+
+        public event System.Action<Card> onEnter;
+        public event System.Action<Card> onExit;
+        public event System.Action<Card> onSelected;
+        public event System.Action<Card> onUse;
+        
 
 
-
-        CardViewProfile profile;
+        //Characterと違ってこれはゲーム間でもあまり変わらないので
+        //一つ一つではなくProfileを入力してもらう
+        public CardViewProfile profile{get;set;}
         CardActionBase action;
 
         protected virtual void Start()
         {
-            enterMotion = EffectServer.instance.GetGUIMotion(enterMotionId,gameObject);
-            exitMotion = EffectServer.instance.GetGUIMotion(exitMotionId,gameObject);
-            selectedMotion = EffectServer.instance.GetGUIMotion(selectedMotionId,gameObject);
-            useMotion = EffectServer.instance.GetGUIMotion(useMotionId,gameObject);
+
         }
 
         public void Initialize(CardViewProfile profile,CardActionBase action)
@@ -64,6 +64,14 @@ namespace CardSystem
         public void Use(Character target)
         {
             action.Execute(target);
+        }
+
+        protected void OnDisable()
+        {
+            onEnter = null;
+            onExit = null;
+            onSelected = null;
+            onUse = null;
         }
 
     }

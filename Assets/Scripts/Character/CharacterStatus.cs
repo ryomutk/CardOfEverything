@@ -1,19 +1,30 @@
-using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Effects;
+using Trigger;
 
 namespace Actor
+
 {
-    //キャラのステ一覧、数的な数の基準はクトゥルフの50倍くらいが良いかなと思う
-    [Flags]
-    public enum CharacterStatus
+    //キャラがダメージを受けた時のリアクションと値の管理。
+    public class CharacterStatus
     {
-        none,
-        hp = 1,        //プレイヤー上限3000程度。敵は比較的高く。
-        strength = 2,  //物理的な力を洗わす。物理攻撃力に直結。
-        dexterity = 4, //どれほど器用にものを扱えるかに影響。
-        diffence = 8, 
-        power = 16,
-        mental = 32,
-        magic = 64,
-        casting = 128
+        public Dictionary<CharacterStates,int> statusDictionary;
+        //しんだとき
+        public event CharacterAction OnDeath;
+        //被害を受けたとき
+        public event System.Action<Character,CharacterStates,int> OnModify;
+        Character master;
+
+
+        public virtual void Modify(Character character,CharacterStates status,int ammount)
+        {
+            OnDeath = null;
+            OnModify = null;
+            
+            statusDictionary[status] += ammount;
+            OnModify(character,status,ammount);
+        }
+
     }
 }

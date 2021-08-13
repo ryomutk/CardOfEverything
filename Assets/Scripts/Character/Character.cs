@@ -7,33 +7,43 @@ namespace Actor
 {
     public abstract class Character : MonoBehaviour
     {
-        protected abstract IVisualEffect EnterMotion { get; set; }
-        protected abstract IVisualEffect ExitMotion { get; set; }
-
         public abstract int[] actionWeightArray{get;set;}
-        public event CharacterAction OnDeath;
-
-
         
+        CharacterStatus _status = new CharacterStatus();
+        public CharacterStatus Status{get{return _status;}}
+        public CardSystem.CardName[] cardList{get;private set;}
+        
+        public event CharacterAction OnEnter;
+        public event CharacterAction OnExit;
+
+        //
+        public abstract CardSystem.Card DrawCard();
+
 
 
         //キャラのステータス変更を行いたいときの受付窓口。
         /// <summary>
         /// actionWeightArrayはそのまま変更かなー
         /// </summary>
-        public virtual void ModifyStatus(CharacterStatus target,float amount)
+        public virtual void ModifyStatus(CharacterStates target,int amount)
         {
-            
+            Status.Modify(this,target,amount);
         }
 
         public virtual void Enter()
         {
-            BattleManager.instance.RegisterFX(EnterMotion);
+            OnEnter(this);
         }
 
         public virtual void Exit()
         {
-            BattleManager.instance.RegisterFX(ExitMotion);
+            OnExit(this);
+        }
+
+        void OnDisable()
+        {
+            OnEnter = null;
+            OnExit = null;
         }
     }
 }

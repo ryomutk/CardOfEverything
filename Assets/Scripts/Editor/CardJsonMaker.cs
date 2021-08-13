@@ -37,7 +37,7 @@ public class CardJsonMaker : EditorWindow
                     jsonProfile = CardProfileBuilder.Get(jsonProfile.name);
                 }
             }
-            jsonProfile.statusRequirement = (CharacterStatus)EditorGUILayout.EnumFlagsField(jsonProfile.statusRequirement);
+            jsonProfile.statusRequirement = (CharacterStates)EditorGUILayout.EnumFlagsField(jsonProfile.statusRequirement);
             jsonProfile.attribute = (AbilityAttribute)EditorGUILayout.EnumFlagsField(jsonProfile.attribute);
             jsonProfile.defaultWeight = EditorGUILayout.IntField("DefaultWeight", jsonProfile.defaultWeight);
             jsonProfile.thumbnail = (Sprite)EditorGUILayout.ObjectField(jsonProfile.thumbnail, typeof(Sprite), false, options);

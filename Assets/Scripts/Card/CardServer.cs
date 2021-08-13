@@ -10,12 +10,14 @@ namespace CardSystem
         List<CardActionBase> actionList;
         CardViewProfile[] profiles;
         [SerializeField] Card rawCardPref;
+        [SerializeField] int initNum = 10;
         InstantPool<Card> rawCardPool;
 
         protected override void Awake()
         {
             base.Awake();
             profiles = CardProfileBuilder.GetAll();   
+            rawCardPool.CreatePool(rawCardPref,initNum);
         }
 
         public Card GetCard(CardName id)
@@ -31,7 +33,7 @@ namespace CardSystem
             }
             //こいつは…バグカード的な?
 
-            return rawCardPref;
+            return Instantiate(rawCardPref);
         }
 
 
