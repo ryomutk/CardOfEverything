@@ -5,42 +5,45 @@ using UnityEngine.UI;
 
 namespace CardSystem
 {
-    [RequireComponent(typeof(HorizontalLayoutGroup))]
-    public class Hand:MonoBehaviour,ICardViewPoint
+    [RequireComponent(typeof(LayoutField<Character>))]
+    public class Hand : MonoBehaviour, ICardViewPoint
     {
-        
-        public List<Card> cardsInHand{get;private set;}
+
+        public List<Card> cardsInHand { get; private set; }
         public bool locked { get; set; }
         Card selectedCard;
-        HorizontalLayoutGroup layoutGroup;
+        LayoutField<Card> place;
 
-        public virtual void OnInput(Card subject,Character target,InputArg arg)
+        void Start()
         {
-            if(arg.type == InputType.Click)
+            place = GetComponent<LayoutField<Card>>();
+        }
+
+        public virtual void OnInput(Card subject, Character target, InputArg arg)
+        {
+            if (arg.type == InputType.Click)
             {
-                if(selectedCard == subject)
+                if (selectedCard == subject)
                 {
-                    UseCard(subject,target);
+                    UseCard(subject, target);
                 }
             }
         }
 
         public virtual void AddCard(Card instance)
         {
-            instance.transform.SetParent(transform);
-            instance.Enter();
-
+            place.Place(instance);
         }
 
 
         public Hand()
         {
-           cardsInHand = new List<Card>();
+            cardsInHand = new List<Card>();
         }
 
-        bool UseCard(Card card,Character target)
+        bool UseCard(Card card, Character target)
         {
-            if(locked)
+            if (locked)
             {
                 return false;
             }
@@ -48,13 +51,19 @@ namespace CardSystem
             if (card == selectedCard)
             {
                 cardsInHand.Remove(card);
+                place.Remove(card);
                 card.Use(target);
                 return true;
             }
+            else
+            {
+                card.Select(true);
+                selectedCard.Select(false);
+                selectedCard = card;
 
-            selectedCard = card;
-            
-            return false;
+                return false;
+            }
+
         }
 
     }

@@ -5,25 +5,26 @@ namespace Effects
 {
     public abstract class ObjectEffect : IVisualEffect
     {
-        public GameObject target{get;private set;}
-        public EffectName name {get;private set;}
+        protected GameObject target{get;private set;}
         public bool dontDisturb{get;set;}
-        public event Action onCompleate;
-        public bool compleated{get;}
+        public abstract bool compleated{get;protected set;}
 
-        public ObjectEffect(EffectName name,GameObject target,bool dontDisturb = false)
+        public ObjectEffect(bool dontDisturb)
         {
             compleated =false;
-            this.name = name;
-            this.target = target;
             this.dontDisturb = dontDisturb;
         }
 
-        public void SetTarget(GameObject target)
+        public virtual void SetTarget(GameObject target)
         {
             this.target = target;
         }
 
         public abstract void Execute(RendererGetter rendererGetter,AudioSource audioSource);
+
+        public ObjectEffect Clone()
+        {
+            return MemberwiseClone() as ObjectEffect;
+        }
     }
 }

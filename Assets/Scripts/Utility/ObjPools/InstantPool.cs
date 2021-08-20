@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ModulePattern;
+using System.Threading.Tasks;
 
 namespace Utility.ObjPool
 {
@@ -29,7 +30,7 @@ namespace Utility.ObjPool
             if (num >= 0)
             {
                 parent = new GameObject(obj.name + "Pool").transform;
-                
+
                 if (transform != null)
                 {
                     parent.SetParent(transform);
@@ -47,6 +48,35 @@ namespace Utility.ObjPool
                 _state = ModuleState.ready;
             }
             return false;
+        }
+
+        public async Task CreatePoolAsync(T obj, int num)
+        {
+            if (num >= 0)
+            {
+                await Task.Run(
+                    () =>
+                    {
+                        parent = new GameObject(obj.name + "Pool").transform;
+
+                        if (transform != null)
+                        {
+                            parent.SetParent(transform);
+                            parent.transform.localScale = Vector3.one;
+                        }
+
+                        objPrefab = obj;
+                        _state = ModuleState.working;
+
+                        for (int i = 0; i < num; i++)
+                        {
+                            CreateObj();
+                        }
+
+                        _state = ModuleState.ready;
+                    }
+                );
+            }
         }
 
 

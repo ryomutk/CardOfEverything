@@ -15,8 +15,13 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
 
     void Start()
     {
-        GameManager.instance.onInitialize += () => LoadResources();
-
+        GameManager.instance.onGameEvent += (x) =>
+        {
+            if (x == GameState.serverInitialize)
+            {
+                LoadResources();
+            }
+        };
     }
 
 
@@ -46,22 +51,7 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
         }
     }
 
-    public ObjectEffect GetObjEffect(EffectName name, GameObject target)
-    {
-        for (int i = 0; i < objectEffectDatas.Count; i++)
-        {
-            if (objectEffectDatas[i].name == name)
-            {
-                var effect = objectEffectDatas[i];
-                return effect.GetMotion(target) as ObjectEffect;
-            }
-        }
-
-        throw new System.DllNotFoundException();
-    }
-
-
-    public IVisualEffect GetGUIMotion(EffectName name, GameObject target)
+    public IVisualEffect GetObjEffect(ObjEffectName name, GameObject target)
     {
         for (int i = 0; i < objectEffectDatas.Count; i++)
         {
@@ -72,23 +62,40 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
             }
         }
 
-        throw new System.DllNotFoundException();
-
+        Debug.LogWarning("Effect:" + name + "is not found");
+        return new NullEffect();
     }
 
 
-    public IVisualEffect GetTextEffect(EffectName name,Transform target,string contents)
+    public IVisualEffect GetGUIMotion(GUIEffectName name, GameObject target)
+    {
+        for (int i = 0; i < objectEffectDatas.Count; i++)
+        {
+            if (gUIMotionDataList[i].name == name)
+            {
+                var effect = objectEffectDatas[i];
+                return effect.GetMotion(target);
+            }
+        }
+
+        Debug.LogWarning("Effect:" + name + "is not found");
+        return new NullEffect();
+    }
+
+
+    public IVisualEffect GetTextEffect(TextEffectName name, Transform target, string contents)
     {
         for (int i = 0; i < objectEffectDatas.Count; i++)
         {
             if (textEffectDatas[i].name == name)
             {
                 var effect = textEffectDatas[i];
-                return effect.GetMotion(target,contents);
+                return effect.GetMotion(target, contents);
             }
         }
 
-        throw new System.DllNotFoundException();
+        Debug.LogWarning("Effect:"+name+"is not found");
+        return new NullEffect();
     }
 
     public void GetScreenEffect()

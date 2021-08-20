@@ -11,8 +11,14 @@ namespace CardSystem
         public void SetCard(ICardViewPoint viewPoint,CardName name)
         {
             var cardInstance = CardServer.instance.GetCard(name);
-            Action<InputArg> inputAction = (x) => OnCardInput(cardInstance,x);
-            inputAction += (x) => viewPoint.OnInput(subject,BattleManager.instance.)
+            
+            //カードを監視したい人
+            ButtonAction inputAction = (x) => OnCardInput(cardInstance,x);
+
+            //カードにたいする効果
+            inputAction += (x) => viewPoint.OnInput(cardInstance,BattleManager.instance.nowSession.GetSelected(),x);
+
+            ButtonSettor.instance.SetButton(cardInstance.gameObject,inputAction);
         }
 
 

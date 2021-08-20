@@ -43,6 +43,12 @@ public class CardJsonMaker : EditorWindow
             jsonProfile.thumbnail = (Sprite)EditorGUILayout.ObjectField(jsonProfile.thumbnail, typeof(Sprite), false, options);
             jsonProfile.flavorText = EditorGUILayout.TextArea(jsonProfile.flavorText);
             jsonProfile.summary = EditorGUILayout.TextArea(jsonProfile.summary);
+
+            jsonProfile.enterMotionID = (ObjEffectName)EditorGUILayout.EnumPopup("EnterMotion",jsonProfile.enterMotionID);
+            jsonProfile.exitMotionID = (ObjEffectName)EditorGUILayout.EnumPopup("ExitMotion",jsonProfile.exitMotionID);
+            jsonProfile.useMotionID = (ObjEffectName)EditorGUILayout.EnumPopup("UseMotion",jsonProfile.useMotionID);
+            jsonProfile.selectedMotionID = (GUIEffectName)EditorGUILayout.EnumPopup("SelectMotion",jsonProfile.selectedMotionID);
+            jsonProfile.disSelectedMotionID = (GUIEffectName)EditorGUILayout.EnumPopup("DisSelectMotion",jsonProfile.disSelectedMotionID);
             if (GUILayout.Button("生成"))
             {
                 Write();
@@ -60,7 +66,7 @@ public class CardJsonMaker : EditorWindow
             return;
         }
 
-        //オーバーライト未実装
+        //オーバーライト実装ずみ
         JsonHelper.SaveData<CardViewProfile>(jsonProfile, jsonProfile.name.ToString());
 
     }

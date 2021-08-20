@@ -5,7 +5,6 @@ namespace CardSystem
     //JsonからすべてのCardProfileを作成
     public static class CardProfileBuilder
     {
-
         public static CardViewProfile Get(CardName id)
         {
             var data = JsonHelper.GetData<CardViewProfile>((id.ToString()));

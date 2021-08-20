@@ -1,5 +1,9 @@
 public enum  GameState
 {
-    initializing,
-    inBattle
+    serverInitialize,
+    systemInitialize,
+    viewInitialize,
+    startGame,
+    inBattle,
+    paused
 }

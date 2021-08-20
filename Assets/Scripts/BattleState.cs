@@ -1,8 +1,19 @@
-public enum BattleState
+public enum TurnState
 {
+    notInBattle,
     turnStart,
     cardDraw,
     cardUsed,
     onContact,
-    onTurnEnd
+    turnEnd
+}
+
+public enum BattleState
+{
+    notInBattle,
+    dataInitialize,
+    viewInitialize,
+    battleStart,
+    inBattle,
+    battleEnd
 }

@@ -18,12 +18,15 @@ namespace Actor
 
 
         public virtual void Modify(Character character,CharacterStates status,int ammount)
+        {            
+            statusDictionary[status] += ammount;
+            OnModify(character,status,ammount);
+        }
+
+        public void Initialize()
         {
             OnDeath = null;
             OnModify = null;
-            
-            statusDictionary[status] += ammount;
-            OnModify(character,status,ammount);
         }
 
     }

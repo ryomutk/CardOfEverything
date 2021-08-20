@@ -17,10 +17,11 @@ namespace CardSystem
         [SerializeField] string _flavorText = "終焉の時が来た。\n 恐れることはない、貴方もまた、ここから生じたのだから。";
         [SerializeField] string _summary = "敵全体に万能属性の特大ダメージ&確率即死";
 
-        [SerializeField] EffectName enterMotionID;
-        [SerializeField] EffectName exitMotionID;
-        [SerializeField] EffectName selectedMotionID;
-        [SerializeField] EffectName useMotionID;
+        public ObjEffectName enterMotionID;
+        public ObjEffectName exitMotionID;
+        public GUIEffectName selectedMotionID;
+        public GUIEffectName disSelectedMotionID;
+        public ObjEffectName useMotionID;
 
 
         public CardName name { get { return _name; } set { _name = value; } }
@@ -41,11 +42,36 @@ namespace CardSystem
             var exit = EffectServer.instance.GetObjEffect(exitMotionID, instance.gameObject);
             var select = EffectServer.instance.GetGUIMotion(selectedMotionID, instance.gameObject);
             var use = EffectServer.instance.GetObjEffect(useMotionID, instance.gameObject);
+            var disSelect = EffectServer.instance.GetGUIMotion(disSelectedMotionID, instance.gameObject);
 
-            instance.onEnter += (x) => BattleManager.instance.RegisterFX(enter);
-            instance.onExit += (x) => BattleManager.instance.RegisterFX(enter);
-            instance.onSelected += (x) => GameManager.instance.RegisterGUIMotion(select);
-            instance.onUse += (x) => BattleManager.instance.RegisterFX(use);
+            instance.onCardEvent += (x, y) =>
+            {
+                if (y == CardEventName.entered)
+                {
+                    BattleManager.instance.RegisterFX(enter);
+                }
+            };
+
+            instance.onCardEvent += (x, y) =>
+            {
+                if (y == CardEventName.exited)
+                    BattleManager.instance.RegisterFX(exit);
+            };
+
+            instance.onCardEvent += (x, y) =>
+            {
+                if (y == CardEventName.selected)
+                {
+
+                    GameManager.instance.RegisterGUIMotion(select);
+                }
+            };
+
+            instance.onCardEvent += (x, y) =>
+            {
+                if(y == CardEventName.used)
+                BattleManager.instance.RegisterFX(use);
+            };
         }
     }
 }

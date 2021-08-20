@@ -8,10 +8,11 @@ using System.Collections.Generic;
 [RequireComponent(typeof(RendererGetter), typeof(AudioSource))]
 public class GameManager : Singleton<GameManager>
 {
-    public event Action onInitialize;
+    public event Action<GameState> onGameEvent;
     VisualEffectQueue GUIQueue;
     GameState nowState;
     List<IInteraptor> interaptorQueue = new List<IInteraptor>();
+
 
 
     void Start()
@@ -19,17 +20,28 @@ public class GameManager : Singleton<GameManager>
         var renderer = GetComponent<RendererGetter>();
         var audioSource = GetComponent<AudioSource>();
         GUIQueue = new VisualEffectQueue(renderer, audioSource, (x) => StartCoroutine(x));
+
+        StartCoroutine(GameLoop());
     }
 
+    //今はInitialize終わったらバトル始めるだけの野蛮人。
     System.Collections.IEnumerator GameLoop()
     {
         //OnInitialize受付期間
         yield return 2;
 
-        onInitialize();
+        onGameEvent(GameState.serverInitialize);
+        yield return StartCoroutine(HandleInteraptors());
+        onGameEvent(GameState.systemInitialize);
+        yield return StartCoroutine(HandleInteraptors());
+        onGameEvent(GameState.viewInitialize);
         yield return StartCoroutine(HandleInteraptors());
 
-        
+        onGameEvent(GameState.startGame);
+
+        yield return StartCoroutine(HandleInteraptors());
+
+        onGameEvent(GameState.inBattle);
     }
 
     public void RegisterInterapt(IInteraptor interaptor)
@@ -55,6 +67,7 @@ public class GameManager : Singleton<GameManager>
 
     void Update()
     {
+        ButtonActionQueue.instance.Trigger();
         GUIQueue.Trigger();
     }
 }
