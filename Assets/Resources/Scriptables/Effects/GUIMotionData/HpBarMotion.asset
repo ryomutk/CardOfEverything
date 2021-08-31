@@ -9,13 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c94ec798ec232034890ee436035e783d, type: 3}
-  m_Name: HpBarMotion
+  m_Script: {fileID: 11500000, guid: fddf77cbb82ff17439c82b7a5b92046f, type: 3}
+  m_Name: HPBarMotion
   m_EditorClassIdentifier: 
+  _name: 0
   _hpBarMotion:
     baseSprite: {fileID: 0}
+    homingToTarget: 1
     hasEnterMotion: 1
-    initialScale: 1
+    initialScale: 0
     isVertical: 0
-    changeDuration: 0.4
+    defaultColor: {r: 0, g: 0, b: 0, a: 0}
+    enterDuration: 2
+    changeDuration: 0
     changeEase: 6
+    offset: {x: 0.5, y: 0.5}
+    lowHpColor: {r: 1, g: 0, b: 0, a: 1}
+    targetState: 0

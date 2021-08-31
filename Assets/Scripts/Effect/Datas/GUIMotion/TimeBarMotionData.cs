@@ -4,38 +4,26 @@ using UnityEngine;
 namespace Effects
 {
     [CreateAssetMenu(menuName = "GUIMotionData/TimeBarMotion")]
-    public class TimeBarMotionData : ImageSliderMotionData
+    public class TimeBarMotionData : CharacterStatusBarMotionData
     {
         public override GUIEffectName name { get { return GUIEffectName.timeBarMotion; } }
         [SerializeField] TimeBarMotion _timeBarMotion;
         protected override ObjectEffect cloneBase { get { return _timeBarMotion; } }
 
         [System.Serializable]
-        protected class TimeBarMotion : ImageSliderMotion
+        protected class TimeBarMotion : CharacterStatusBarMotion
         {
-            protected override Func<float> targetNumNormalized { get; set; }
-
-            public override void SetTarget(MonoBehaviour target)
+            protected override void SetTargetNumNormalized()
             {
-                base.SetTarget(target);
+                var nowSession = BattleManager.instance.nowSession;
 
-                if(target is Actor.Character character)
+                if (nowSession is NowhereBattleSession nbs)
                 {
-                    var targetCharacter = character;
-                    var nowSession = BattleManager.instance.nowSession;
-
-                    if(nowSession is NowhereBattleSession nbs)
-                    {
-                        targetNumNormalized = () => nbs.GetRemainTimeNormalized(character);
-                    }
-                    else
-                    {
-                        Debug.Log("I am only for Nowhere battle session");
-                    }
+                    targetNumNormalized = () => nbs.GetRemainTimeNormalized(targetCharacter);
                 }
                 else
                 {
-                    Debug.Log("I only can handle character!");
+                    Debug.LogWarning("I am only for Nowhere battle session");
                 }
             }
         }

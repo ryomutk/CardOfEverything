@@ -17,7 +17,7 @@ public class GameManager : Singleton<GameManager>
 
     void Start()
     {
-//        onGameEvent += (x) => Debug.Log("GamEv:"+x);
+        //        onGameEvent += (x) => Debug.Log("GamEv:"+x);
 
 
         var renderer = GetComponent<RendererGetter>();
@@ -33,12 +33,18 @@ public class GameManager : Singleton<GameManager>
         //OnInitialize受付期間
         yield return 2;
 
-        onGameEvent(GameState.serverInitialize);
-        yield return StartCoroutine(HandleInteraptors());
-        onGameEvent(GameState.systemInitialize);
-        yield return StartCoroutine(HandleInteraptors());
-        onGameEvent(GameState.viewInitialize);
-        yield return StartCoroutine(HandleInteraptors());
+        var gameStates = Enum.GetValues(typeof(GameState)) as GameState[];
+        for (int i = 0; i < gameStates.Length; i++)
+        {
+            var now = gameStates[i];
+            if (now == GameState.startGame)
+            {
+                break;
+            }
+
+            onGameEvent(gameStates[i]);
+            yield return StartCoroutine(HandleInteraptors());
+        }
 
         guiIsActive = true;
         inputIsActive = true;

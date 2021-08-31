@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Actor;
 using Utility;
 
@@ -10,7 +11,7 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     Utility.ObjPool.InstantPool<Character> characterPool;
     [SerializeField] int initNum = 10;
 
-    [SerializeField] CharacterGUI[] additionalGUIs;
+    [SerializeField] TurnBaseGUI[] additionalGUICloneBase;
 
 
     public bool finished { get; private set; }
@@ -18,7 +19,7 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     {
         GameManager.instance.onGameEvent += (x) =>
         {
-            if(x == GameState.serverInitialize)
+            if (x == GameState.serverInitialize)
             {
                 StartCoroutine(Initialize());
             };
@@ -32,7 +33,7 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
         characterProfiles = CharacterProfileBuilder.GetAll();
 
         characterPool = new Utility.ObjPool.InstantPool<Character>(transform);
-        yield return new WaitUntil(()=>characterPool!=null);
+        yield return new WaitUntil(() => characterPool != null);
         characterPool.CreatePool(rawCharacterPref, initNum);
         yield return new WaitUntil(() => characterPool.state == ModuleState.ready);
 
@@ -52,6 +53,17 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
         {
             var chara = characterPool.GetObj();
             profile.LoadToCharacter(chara);
+
+
+            for (int i = 0; i < additionalGUICloneBase.Length; i++)
+            {
+                var gui = additionalGUICloneBase[i].Clone(chara);
+                
+                gui.Activate();
+
+                //これで参照は全部切れる…はず。
+                chara.Status.OnDeath += (x) => gui.DisActivate();
+            }
 
             return chara;
         }
@@ -73,12 +85,12 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     }
 
 
-    public float GetCharacterDefault(CharacterName name,CharacterStates state)
+    public float GetCharacterDefault(CharacterName name, CharacterStates state)
     {
         var profile = GetProfile(name);
-        for(int i = 0;i < profile.statesDataList.Count;i++)
+        for (int i = 0; i < profile.statesDataList.Count; i++)
         {
-            if(profile.statesDataList[i].state == state)
+            if (profile.statesDataList[i].state == state)
             {
                 return profile.statesDataList[i].amount;
             }

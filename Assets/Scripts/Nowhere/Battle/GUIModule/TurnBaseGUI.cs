@@ -2,8 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-//TurnEventを使って更新する方式のGUI。
-//登録したEffectが登録したTurnEvent毎に更新される
+//Turnの中で動かしたいUIの、
+//アップデートタイミングを保持し、
+//GameManagerに登録登録
 [System.Serializable]
 public class TurnBaseGUI
 {
@@ -13,6 +14,7 @@ public class TurnBaseGUI
 
     GUIEffectName baseEffectName { get { return _baseEffectName; } set { _baseEffectName = value; } }
     Effects.IVisualEffect baseEffect;
+    System.Action<TurnState> updateCallback;
 
     protected virtual void UpdateCallback(TurnState state)
     {
@@ -22,10 +24,20 @@ public class TurnBaseGUI
         }
     }
 
+    public void Activate()
+    {
+        BattleManager.instance.OnTurnEvent += updateCallback;
+    }
+
+    public void DisActivate()
+    {
+        BattleManager.instance.OnTurnEvent -= updateCallback;
+    }
+
     public TurnBaseGUI Clone(MonoBehaviour target)
     {
         this.baseEffect = EffectServer.instance.GetGUIMotion(baseEffectName, target);
-        BattleManager.instance.OnTurnEvent += (x) => UpdateCallback(x);
+        updateCallback = (x) => UpdateCallback(x);
         
         return (TurnBaseGUI)MemberwiseClone();
     }

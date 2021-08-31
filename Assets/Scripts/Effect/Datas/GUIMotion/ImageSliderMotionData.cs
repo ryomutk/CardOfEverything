@@ -16,6 +16,7 @@ namespace Effects
         {
             protected Image targetRenderer;
             [SerializeField] Sprite baseSprite;
+            [SerializeField] protected bool homingToTarget = true;
 
             //こいつが基準。
             protected abstract System.Func<float> targetNumNormalized { get; set; }
@@ -28,7 +29,7 @@ namespace Effects
             //縦か？(変えるScaleがYか？と等価)
             [SerializeField] bool isVertical = false;
             [SerializeField] protected Color defaultColor;
-            [SerializeField,ShowIf("hasEnterMotion")]float enterDuration = 2;
+            [SerializeField, ShowIf("hasEnterMotion")] float enterDuration = 2;
             [SerializeField] float changeDuration;
             [SerializeField] Ease changeEase = Ease.OutQuad;
             public override bool compleated { get; protected set; }
@@ -50,14 +51,16 @@ namespace Effects
             {
                 compleated = false;
 
-                if (targetRenderer == null)
-                {
-                    targetRenderer = rendererGetter.GetImageObj();
-                    targetRenderer.color = defaultColor;
-                }
-
                 if (dontDisturb == true)
                 {
+                    if (targetRenderer == null)
+                    {
+                        targetRenderer = rendererGetter.GetImageObj();
+                        targetRenderer.sprite = baseSprite;
+                        targetRenderer.color = defaultColor;
+                    }
+
+
                     //これは直前にSetTargetされ、なおかつEnterMotionがあるときと等価。
                     if (isVertical)
                     {
@@ -75,7 +78,7 @@ namespace Effects
 
                 var targetNum = targetNumNormalized();
                 //変化していたら
-                if (initialScale != targetNum)
+                if (lastScale != targetNum)
                 {
                     Tween tw;
                     //更新
@@ -91,6 +94,8 @@ namespace Effects
                     tw.SetEase(changeEase);
 
                     tw.Play().onComplete += () => compleated = true;
+
+                    lastScale = targetNum;
                 }
             }
         }

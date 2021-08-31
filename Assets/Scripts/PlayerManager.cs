@@ -31,6 +31,9 @@ public class PlayerManager : Singleton<PlayerManager>
     /// <returns></returns>
     IEnumerator Initialize()
     {
+        var task = new InteraptTask();
+        GameManager.instance.RegisterInterapt(task);
+
         var profile = CharacterServer.instance.GetProfile(CharacterName.player);
         var player = Instantiate(rawPlayerPref);
         profile.LoadToCharacter(player);
@@ -39,6 +42,7 @@ public class PlayerManager : Singleton<PlayerManager>
         
         yield return null;
 
+        task.finished = true;
     }
 
     public bool IsPlayer(Character character)
