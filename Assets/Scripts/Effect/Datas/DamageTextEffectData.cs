@@ -5,6 +5,7 @@ using DG.Tweening;
 
 namespace Effects
 {
+    [CreateAssetMenu]
     public class DamageTextEffectData : TextEffectData
     {
         public override TextEffectName name { get { return TextEffectName.damage_text_effect; } }
@@ -45,7 +46,7 @@ namespace Effects
                 text.color = Color.clear;
 
 
-                sq.Append(text.transform.DOLocalMoveY(1, duration).SetRelative())
+                sq.Append(text.transform.DOLocalMoveY(moveSize, duration).SetRelative())
                 .Join(text.DOFade(1, duration / 3))
                 .Append(text.DOFade(0, duration * 2 / 3));
 

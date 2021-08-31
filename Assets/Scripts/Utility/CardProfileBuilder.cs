@@ -7,7 +7,8 @@ namespace CardSystem
     {
         public static CardViewProfile Get(CardName id)
         {
-            var data = JsonHelper.GetData<CardViewProfile>((id.ToString()));
+            var name = id.ToString();
+            var data = JsonHelper.GetData<CardViewProfile>((name));
 
 
             return data;

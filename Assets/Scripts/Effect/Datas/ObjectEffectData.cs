@@ -9,14 +9,14 @@ namespace Effects
         protected abstract ObjectEffect cloneBase { get; }
 
         //インスタンスを読み込む者
-        protected ObjectEffect InitMotion(GameObject target)
+        protected ObjectEffect InitMotion(MonoBehaviour target)
         {
             var instance = cloneBase.Clone();
             instance.SetTarget(target);
             return instance;
         }
 
-        public virtual ObjectEffect GetMotion(GameObject target)
+        public virtual ObjectEffect GetMotion(MonoBehaviour target)
         {
             var instance = InitMotion(target);
 

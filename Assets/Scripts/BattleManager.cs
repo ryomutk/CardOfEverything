@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using Utility;
-using Trigger;
 using Actor;
 using Effects;
 
@@ -12,12 +11,11 @@ public delegate void CharacterAction(Character target);
 [RequireComponent(typeof(AudioSource), typeof(RendererGetter))]
 public class BattleManager : Singleton<BattleManager>
 {
-    List<IInteraptor> interaptorQueue;
+    [SerializeField]SessionProfile sampleProfile;
+    List<IInteraptor> interaptorQueue = new List<IInteraptor>();
     VisualEffectQueue battleQueue;
-    public BattleState battleState{get;private set;}
-
-    //一応公開しない。なぜならできないときとかあるかもだし。
-    public BattleSession nowSession{get;private set;}
+    public BattleSession nowSession { get;private set; }
+    public DeckHolder deckHolder{get;private set;}
 
 
     /// <summary>
@@ -29,25 +27,56 @@ public class BattleManager : Singleton<BattleManager>
     /// BattleStateが投げられるEvent
     /// </summary>
     public event System.Action<BattleState> OnBattleEvent;
+    BattleField field;
 
 
     void Start()
     {
+       //     OnBattleEvent += (x) => Debug.Log("BatEv:"+x);
+       //      OnTurnEvent += (x) => Debug.Log("TrnEv"+x);
+
+        field = GetComponentInChildren<BattleField>();
         var audio = GetComponent<AudioSource>();
         var getter = GetComponent<RendererGetter>();
         battleQueue = new VisualEffectQueue(getter, audio, StartCoroutine);
+
+        deckHolder = new DeckHolder();
+
+        GameManager.instance.onGameEvent += (x) =>
+        {
+            if (x == GameState.inBattle)
+            {
+                StartCoroutine(BattleSequence());
+            }
+        };
     }
 
+    
+    //これはかくきゃらくたに設定され
+    //毎ターンループ事(停止を覗いて訳10フレームほど)にDexだけ引かれる。
+    //0以下になったら行動がとられる。
+    [SerializeField] int loopDuration = 1000;
+    IEnumerator BattleSequence()
+    {
+        nowSession = new NowhereBattleSession(loopDuration,sampleProfile,field);
+        OnBattleEvent(BattleState.dataInitialize);
+        yield return StartCoroutine(HandleInteraptors());
+        OnBattleEvent(BattleState.viewInitialize);
+        yield return StartCoroutine(HandleInteraptors());
+        OnBattleEvent(BattleState.battleStart);
+        yield return StartCoroutine(HandleInteraptors());
+
+        StartCoroutine(TurnLoop(nowSession));
+    }
 
 
     IEnumerator TurnLoop(BattleSession session)
     {
-        battleState = BattleState.inBattle;
-        TurnState[] states = System.Enum.GetValues(typeof(TurnState)) as TurnState[]; 
+        TurnState[] states = System.Enum.GetValues(typeof(TurnState)) as TurnState[];
 
-        while(!nowSession.IfBattleEnd)
+        while (!nowSession.IfBattleEnd)
         {
-            for(int i = 0;i < states.Length;i++)
+            for (int i = 0; i < states.Length; i++)
             {
                 OnTurnEvent(states[i]);
                 //入力、GUI待ち
@@ -57,7 +86,7 @@ public class BattleManager : Singleton<BattleManager>
 
                 var additionalCount = battleQueue.Trigger();
 
-                while(additionalCount > 0)
+                while (additionalCount > 0)
                 {
                     yield return StartCoroutine(HandleInteraptors());
                     additionalCount = battleQueue.Trigger();

@@ -16,7 +16,8 @@ namespace CardSystem
             ButtonAction inputAction = (x) => OnCardInput(cardInstance,x);
 
             //カードにたいする効果
-            inputAction += (x) => viewPoint.OnInput(cardInstance,BattleManager.instance.nowSession.GetSelected(),x);
+            inputAction += (x) => viewPoint.OnInput(cardInstance,x);
+            inputAction += (x) => cardInstance.ButtonCallback(x);
 
             ButtonSettor.instance.SetButton(cardInstance.gameObject,inputAction);
         }

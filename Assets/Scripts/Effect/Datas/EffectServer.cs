@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using Utility;
 using System.Collections.Generic;
+using System.IO;
 
 //Staticのほうが向いているがOnInitializeで毎度初期化したいのでSingleton
 public class EffectServer : Singleton<EffectServer>, IInteraptor
@@ -27,6 +28,7 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
 
     void LoadResources()
     {
+        GameManager.instance.RegisterInterapt(this);
         StartCoroutine(LoadResource());
     }
 
@@ -39,19 +41,29 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
         finished = true;
     }
 
-    IEnumerator LoadRequest<T>(string fileName, List<T> targetList)
+    IEnumerator LoadRequest<T>(string folderName, List<T> targetList)
     where T : class
     {
-        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/Effects/" + fileName);
+        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/Effects/" + folderName, "*.asset");
         for (int i = 0; i < fileNames.Length; i++)
         {
-            var request = Resources.LoadAsync("Scriptables/Effects/" + fileName + "/" + fileNames[i]);
+            var filename = Path.GetFileNameWithoutExtension(fileNames[i]);
+            var request = Resources.LoadAsync("Scriptables/Effects/" + folderName + "/" + filename);
             yield return new WaitUntil(() => request.isDone);
-            targetList.Add(request.asset as T);
+
+            var result = request.asset as T;
+            if (result != null)
+            {
+                targetList.Add(request.asset as T);
+            }
+            else
+            {
+                Debug.LogWarning(filename +" is not " + typeof(T) + " please re-check the directory.");
+            }
         }
     }
 
-    public IVisualEffect GetObjEffect(ObjEffectName name, GameObject target)
+    public IVisualEffect GetObjEffect(ObjEffectName name, MonoBehaviour target)
     {
         for (int i = 0; i < objectEffectDatas.Count; i++)
         {
@@ -67,13 +79,13 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
     }
 
 
-    public IVisualEffect GetGUIMotion(GUIEffectName name, GameObject target)
+    public IVisualEffect GetGUIMotion(GUIEffectName name, MonoBehaviour target)
     {
-        for (int i = 0; i < objectEffectDatas.Count; i++)
+        for (int i = 0; i < gUIMotionDataList.Count; i++)
         {
             if (gUIMotionDataList[i].name == name)
             {
-                var effect = objectEffectDatas[i];
+                var effect = gUIMotionDataList[i];
                 return effect.GetMotion(target);
             }
         }
@@ -94,7 +106,7 @@ public class EffectServer : Singleton<EffectServer>, IInteraptor
             }
         }
 
-        Debug.LogWarning("Effect:"+name+"is not found");
+        Debug.LogWarning("Effect:" + name + "is not found");
         return new NullEffect();
     }
 

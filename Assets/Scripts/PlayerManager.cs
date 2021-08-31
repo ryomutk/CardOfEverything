@@ -9,33 +9,47 @@ using System.Collections.Generic;
 public class PlayerManager : Singleton<PlayerManager>
 {
     [SerializeField] Character rawPlayerPref;
-    Player nowPlayer = null;
-
-    public static Character player { get { return instance.nowPlayer; } }
-
+    List<Character> playerList = new List<Character>();
+    Dictionary<Character,int> handNumberList = new Dictionary<Character, int>();
+    public int playerNum{get{return playerList.Count;}}
 
     void Start()
     {
         GameManager.instance.onGameEvent += (x) =>
         {
-            if (x == GameState.systemInitialize)
+            if (x == GameState.managerInitialize)
             {
                 StartCoroutine(Initialize());
             }
         };
     }
 
-
+    /// <summary>
+    /// 今はプレイヤーは一人のみの想定。
+    /// でも簡単に複数に増やせます。
+    /// </summary>
+    /// <returns></returns>
     IEnumerator Initialize()
     {
         var profile = CharacterServer.instance.GetProfile(CharacterName.player);
+        var player = Instantiate(rawPlayerPref);
+        profile.LoadToCharacter(player);
+
+        playerList.Add(player);
+        
         yield return null;
 
     }
 
     public bool IsPlayer(Character character)
     {
-        throw new System.NotImplementedException();
+        return playerList.Contains(character);
+    }
+
+    //原初のプレイやーデータへのアクセス。
+    public Character GetPlayer(int index)
+    {
+        return playerList[index];
     }
 
     void SavePlayerStatus()

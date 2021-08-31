@@ -3,6 +3,8 @@ using UnityEditor;
 using Utility;
 using CardSystem;
 using Actor;
+using System.Collections.Generic;
+using System.Linq;
 
 //カード向けのJSONを作るためのエディタ拡張
 public class CharacterProfileMaker : EditorWindow
@@ -17,8 +19,14 @@ public class CharacterProfileMaker : EditorWindow
 
     {
         GetWindow<CharacterProfileMaker>("CharacterMaker");
+        states = System.Enum.GetValues(typeof(CharacterStates)) as CharacterStates[];
     }
 
+    static CharacterStates[] states;
+    int CardNum = 0;
+    bool showCards;
+    List<CardName> cardList = new List<CardName>();
+    Sprite nowSprite;
 
     private void OnGUI()
     {
@@ -35,17 +43,32 @@ public class CharacterProfileMaker : EditorWindow
                 if (GUILayout.Button("読み込む"))
                 {
                     jsonProfile = CharacterProfileBuilder.Get(jsonProfile.name);
+                    nowSprite = SpriteConverter.DataToSprite(jsonProfile.texData);
+                    cardList = jsonProfile.cards.ToList();
+                    CardNum = cardList.Count();
                 }
             }
-            jsonProfile.defaultThumbnail = (Sprite)EditorGUILayout.ObjectField(jsonProfile.defaultThumbnail, typeof(Sprite), false, options);
-            jsonProfile.hp = EditorGUILayout.IntField("hp", jsonProfile.hp);
-            jsonProfile.strength = EditorGUILayout.IntField("strength", jsonProfile.strength);
-            jsonProfile.dexterity = EditorGUILayout.IntField("dex", jsonProfile.dexterity);
-            jsonProfile.diffence = EditorGUILayout.IntField("dif", jsonProfile.diffence);
-            jsonProfile.power = EditorGUILayout.IntField("power", jsonProfile.power);
-            jsonProfile.mental = EditorGUILayout.IntField("mental", jsonProfile.mental);
-            jsonProfile.magic = EditorGUILayout.IntField("magic", jsonProfile.magic);
-            jsonProfile.casting = EditorGUILayout.IntField("casting", jsonProfile.casting);
+
+            var sprite = (Sprite)EditorGUILayout.ObjectField(nowSprite, typeof(Sprite), false, options);
+            if(sprite != nowSprite)
+            {
+                nowSprite = sprite;
+                jsonProfile.texData = SpriteConverter.SpriteToData(sprite); 
+            }
+
+
+            for(int i = 0;i < states.Length;i++)
+            {
+                var state = jsonProfile.statesDataList[i].state.ToString();
+                jsonProfile.statesDataList[i].amount = EditorGUILayout.IntField(state, jsonProfile.statesDataList[i].amount);
+            }
+            
+            //多分これが一番簡単だと思います。
+            showCards = EditorGUILayout.Foldout(showCards, "Cards");
+            if (showCards)
+            {
+                ShowCards();
+            }
 
             jsonProfile.enterMotionID = (ObjEffectName)EditorGUILayout.EnumPopup("EnterMotion", jsonProfile.enterMotionID);
             jsonProfile.exitMotionID = (ObjEffectName)EditorGUILayout.EnumPopup("ExitMotion", jsonProfile.exitMotionID);
@@ -59,8 +82,40 @@ public class CharacterProfileMaker : EditorWindow
         }
     }
 
+
+    void ShowCards()
+    {
+        EditorGUI.indentLevel++;
+        CardNum = EditorGUILayout.IntField("length", CardNum);
+
+        for (int i = 0; i < CardNum; i++)
+        {
+            //タリナケレバフヤス
+            if (cardList.Count == i)
+            {
+                if (i == 0)
+                {
+                    //まだなんもなければ虚空を渡す
+                    cardList.Add(CardName.card_of_void);
+                }
+                else
+                {
+                    //なんかあればひとつ前のやつを入れてあげる新設設計
+                    cardList.Add(cardList[i-1]);
+                }
+            }
+
+            cardList[i] = (CardName)EditorGUILayout.EnumPopup("card" + i, cardList[i]);
+        }
+
+        EditorGUI.indentLevel--;
+    }
+
     void Write()
     {
+        //カードの情報を忘れず保存。
+        jsonProfile.cards = cardList.GetRange(0, CardNum).ToArray();
+
         var data = JsonHelper.GetData<CharacterProfile>(jsonProfile.name.ToString());
 
         if (data == null)

@@ -14,8 +14,8 @@ public class RendererGetter:MonoBehaviour
 
     void Start()
     {
-        imagePool = new InstantPool<Image>();
-        textPool = new InstantPool<TMP_Text>();
+        imagePool = new InstantPool<Image>(transform);
+        textPool = new InstantPool<TMP_Text>(transform);
         
         textPool.CreatePool(rawTextPref,10);
         imagePool.CreatePool(rawImageObj,10);

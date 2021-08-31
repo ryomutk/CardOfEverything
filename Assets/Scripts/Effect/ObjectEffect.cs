@@ -5,7 +5,7 @@ namespace Effects
 {
     public abstract class ObjectEffect : IVisualEffect
     {
-        protected GameObject target{get;private set;}
+        protected MonoBehaviour target{get;private set;}
         public bool dontDisturb{get;set;}
         public abstract bool compleated{get;protected set;}
 
@@ -15,7 +15,7 @@ namespace Effects
             this.dontDisturb = dontDisturb;
         }
 
-        public virtual void SetTarget(GameObject target)
+        public virtual void SetTarget(MonoBehaviour target)
         {
             this.target = target;
         }

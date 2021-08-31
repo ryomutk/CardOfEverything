@@ -12,7 +12,12 @@ public enum GUIEffectName
 {
     none,
     card_motion_selected,
-    card_motion_disselected
+    card_push_down,
+    card_hover,
+    card_back_to_start,
+    spriteSliderMotion,
+    hpbarMotion,
+    timeBarMotion
 }
 
 public enum ScreenEffectName

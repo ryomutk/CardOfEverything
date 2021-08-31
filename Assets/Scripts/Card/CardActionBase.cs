@@ -9,6 +9,6 @@ namespace CardSystem
     {
         new public abstract CardName name{get;}
         public abstract string GetDetail(Character master);
-        public abstract void Execute(Character target);
+        public abstract void Execute(Character master);
     }
 }

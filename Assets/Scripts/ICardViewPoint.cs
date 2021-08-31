@@ -5,7 +5,7 @@ namespace CardSystem
 {
     public interface ICardViewPoint
     {
-        void OnInput(Card subject,Character target,InputArg arg);
+        void OnInput(Card subject,InputArg arg);
         void AddCard(Card instance);
     }
 }

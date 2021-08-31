@@ -10,8 +10,6 @@ public class CustomButton : UIBehaviour
 
     KeyCode[] observeKeys = new KeyCode[] { KeyCode.Mouse0, KeyCode.Mouse1, KeyCode.Mouse3 };
     ButtonAction nullAction;
-    InputArg arg = new InputArg();
-
 
 
     public bool clearEventsOnDisable = true;
@@ -24,12 +22,13 @@ public class CustomButton : UIBehaviour
 
     public void AttachSelf(GameObject target)
     {
-        target.AddComponent<HomingInstinct>().ChangeParent(transform,target);
+        target.AddComponent<HomingInstinct>().ChangeParent(transform, target);
     }
 
 
     public void OnPointerDown()
     {
+        var arg = new InputArg();
         for (int i = 0; i < observeKeys.Length; i++)
         {
             if (Input.GetKeyDown(observeKeys[i]))
@@ -46,6 +45,8 @@ public class CustomButton : UIBehaviour
 
     public void OnHover()
     {
+        var arg = new InputArg();
+
         arg.type = InputType.hoverStart;
         arg.key = KeyCode.None;
         ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
@@ -53,6 +54,8 @@ public class CustomButton : UIBehaviour
 
     public void OnOffHover()
     {
+        var arg = new InputArg();
+
         arg.type = InputType.hoverEnd;
         arg.key = KeyCode.None;
         ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
@@ -60,6 +63,8 @@ public class CustomButton : UIBehaviour
 
     public void OnPointerUp()
     {
+        var arg = new InputArg();
+
         arg.type = InputType.pointerUp;
 
         for (int i = 0; i < observeKeys.Length; i++)
@@ -76,6 +81,7 @@ public class CustomButton : UIBehaviour
 
     public void OnClick()
     {
+        var arg = new InputArg();
 
         arg.type = InputType.Click;
 
@@ -88,13 +94,14 @@ public class CustomButton : UIBehaviour
             }
         }
 
+        Debug.Log("click");
         ButtonActionQueue.instance.RegisterAction(() => buttonEvent(arg));
     }
 
     //わが子がいなくなったら
     void OnTransformChildrenChanged()
     {
-        if(transform.childCount == 0)
+        if (transform.childCount == 0)
         {
             //死ぬ
             gameObject.SetActive(false);

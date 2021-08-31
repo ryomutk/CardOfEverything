@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System;
 using Utility;
 
-public class ButtonActionQueue:Singleton<ButtonActionQueue>
+public class ButtonActionQueue : Singleton<ButtonActionQueue>
 {
 
     List<Action> actionQueue = new List<Action>();
@@ -19,21 +19,16 @@ public class ButtonActionQueue:Singleton<ButtonActionQueue>
         {
             actionQueue = new List<Action>();
         }
-        
+
         int count = actionQueue.Count;
 
-        try
+
+        for (int i = 0; i < count; i++)
         {
-            for (int i = 0; i < count; i++)
-            {
-                actionQueue[0]();
-                actionQueue.RemoveAt(0);
-            }
+            actionQueue[0]();
+            actionQueue.RemoveAt(0);
         }
-        catch (System.NullReferenceException)
-        {
-            actionQueue.Clear();
-        }
+
 
         return count != 0;
     }

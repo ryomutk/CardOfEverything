@@ -50,35 +50,35 @@ namespace Utility.ObjPool
             return false;
         }
 
-        public async Task CreatePoolAsync(T obj, int num)
+/*
+        public Task CreatePoolAsync(T obj, int num)
         {
-            if (num >= 0)
-            {
-                await Task.Run(
-                    () =>
+
+            Task task = Task.Run(
+                () =>
+                {
+                    parent = new GameObject(obj.name + "Pool").transform;
+
+                    if (transform != null)
                     {
-                        parent = new GameObject(obj.name + "Pool").transform;
-
-                        if (transform != null)
-                        {
-                            parent.SetParent(transform);
-                            parent.transform.localScale = Vector3.one;
-                        }
-
-                        objPrefab = obj;
-                        _state = ModuleState.working;
-
-                        for (int i = 0; i < num; i++)
-                        {
-                            CreateObj();
-                        }
-
-                        _state = ModuleState.ready;
+                        parent.SetParent(transform);
+                        parent.transform.localScale = Vector3.one;
                     }
-                );
-            }
-        }
 
+                    objPrefab = obj;
+                    _state = ModuleState.working;
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        CreateObj();
+                    }
+
+                    _state = ModuleState.ready;
+                }
+            );
+            return task;
+        }
+*/
 
         public T GetObj(bool activate = true)
         {

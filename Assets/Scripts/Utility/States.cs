@@ -13,8 +13,7 @@ public enum MotionState
     Active = 1 << 6
 }
 
-namespace ModulePattern
-{
+
     //最小限のstate
     public enum ModuleState
     {
@@ -24,4 +23,3 @@ namespace ModulePattern
         working,       //仕事中
         compleate      //一個前の仕事が完了
     }
-}

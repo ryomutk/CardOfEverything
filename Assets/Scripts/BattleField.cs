@@ -5,31 +5,67 @@ using Actor;
 /// <summary>
 /// 敵を表示し、敵への入力の管理をするクラス。
 /// </summary>
-/// \
-public class BattleField:MonoBehaviour
+///
+[RequireComponent(typeof(LayoutField<Character>))]
+public class BattleField : MonoBehaviour
 {
     List<Character> charasInBattle = new List<Character>();
     Character selected;
     public event System.Action<Character> OnCharacterSelected;
     LayoutField<Character> placer;
+    [SerializeField] GUIEffectName selectedEffectName = GUIEffectName.card_motion_selected;
+    [SerializeField] GUIEffectName disselectedEffectName = GUIEffectName.card_back_to_start;
+    
+    Effects.ObjectEffect selectedEff;
+    Effects.ObjectEffect disselectedEff;
 
     void Start()
     {
         placer = GetComponent<LayoutField<Character>>();
     }
 
-
     public virtual void OnInput(Character subject)
     {
-        selected = subject;
-        placer.Place(subject);
+        var selMotion = EffectServer.instance.GetGUIMotion(selectedEffectName, subject);
+
+        Effects.IVisualEffect disselMotion = new Effects.NullEffect();
+        if(selected == subject)
+        {
+            selMotion = EffectServer.instance.GetGUIMotion(disselectedEffectName,subject);
+            selected = null;
+        }
+        else if (selected != null)
+        {
+            disselMotion = EffectServer.instance.GetGUIMotion(disselectedEffectName, selected);
+            selected = subject;
+        }
+        else
+        {
+            selected = subject;
+        }
+        // else
+        // {
+        //     disselMotion = new Effects.NullEffect();
+        // }
+
+        GameManager.instance.RegisterGUIMotion(selMotion);
+        GameManager.instance.RegisterGUIMotion(disselMotion);
+
         OnCharacterSelected(subject);
     }
 
-    public void AddCharacter(Character character)
+    public void AddCharacter(Character characterInstance)
     {
-        charasInBattle.Add(character);
-        placer.Place(character);
+        ButtonSettor.instance.SetButton(characterInstance.gameObject, (x) =>
+         {
+             if (x.type == InputType.Click)
+             {
+                OnInput(characterInstance);
+             }
+         });
+
+        charasInBattle.Add(characterInstance);
+        placer.Place(characterInstance);
     }
 
     public bool RemoveCharacter(Character character)
@@ -40,7 +76,7 @@ public class BattleField:MonoBehaviour
 
     public Character GetSelected()
     {
-        if(charasInBattle.Contains(selected))
+        if (charasInBattle.Contains(selected))
         {
             return selected;
         }

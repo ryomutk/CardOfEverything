@@ -9,8 +9,11 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     [SerializeField] Character rawCharacterPref;
     Utility.ObjPool.InstantPool<Character> characterPool;
     [SerializeField] int initNum = 10;
-    public bool finished { get; private set; }
 
+    [SerializeField] CharacterGUI[] additionalGUIs;
+
+
+    public bool finished { get; private set; }
     void Start()
     {
         GameManager.instance.onGameEvent += (x) =>
@@ -28,8 +31,10 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
         GameManager.instance.RegisterInterapt(this);
         characterProfiles = CharacterProfileBuilder.GetAll();
 
-        var task = characterPool.CreatePoolAsync(rawCharacterPref, initNum);
-        yield return new WaitUntil(() => task.IsCompleted);
+        characterPool = new Utility.ObjPool.InstantPool<Character>(transform);
+        yield return new WaitUntil(()=>characterPool!=null);
+        characterPool.CreatePool(rawCharacterPref, initNum);
+        yield return new WaitUntil(() => characterPool.state == ModuleState.ready);
 
         finished = true;
     }
@@ -38,7 +43,6 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     {
         base.Awake();
         characterProfiles = CharacterProfileBuilder.GetAll();
-        characterPool.CreatePool(rawCharacterPref, initNum);
     }
 
     public Character GetCharacter(CharacterName name)
@@ -48,6 +52,8 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
         {
             var chara = characterPool.GetObj();
             profile.LoadToCharacter(chara);
+
+            return chara;
         }
 
         return Instantiate(rawCharacterPref);
@@ -65,4 +71,20 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
 
         return null;
     }
+
+
+    public float GetCharacterDefault(CharacterName name,CharacterStates state)
+    {
+        var profile = GetProfile(name);
+        for(int i = 0;i < profile.statesDataList.Count;i++)
+        {
+            if(profile.statesDataList[i].state == state)
+            {
+                return profile.statesDataList[i].amount;
+            }
+        }
+
+        throw new System.Exception("Something wrong happened");
+    }
 }
+

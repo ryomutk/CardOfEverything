@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CardSystem
 {
+    [CreateAssetMenu]
     public class VoidCardAction:CardActionBase
     {
         public override CardName name{get {return CardName.card_of_void;}}

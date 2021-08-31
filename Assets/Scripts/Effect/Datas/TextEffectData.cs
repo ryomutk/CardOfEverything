@@ -1,6 +1,7 @@
 using UnityEngine;
 
 namespace Effects
+
 {
     public abstract class TextEffectData :ScriptableObject
     {

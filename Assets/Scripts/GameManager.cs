@@ -1,5 +1,4 @@
 using Utility;
-using Trigger;
 using Effects;
 using UnityEngine;
 using System;
@@ -10,13 +9,17 @@ public class GameManager : Singleton<GameManager>
 {
     public event Action<GameState> onGameEvent;
     VisualEffectQueue GUIQueue;
-    GameState nowState;
     List<IInteraptor> interaptorQueue = new List<IInteraptor>();
+    bool inputIsActive = false;
+    bool guiIsActive = false;
 
 
 
     void Start()
     {
+//        onGameEvent += (x) => Debug.Log("GamEv:"+x);
+
+
         var renderer = GetComponent<RendererGetter>();
         var audioSource = GetComponent<AudioSource>();
         GUIQueue = new VisualEffectQueue(renderer, audioSource, (x) => StartCoroutine(x));
@@ -36,6 +39,9 @@ public class GameManager : Singleton<GameManager>
         yield return StartCoroutine(HandleInteraptors());
         onGameEvent(GameState.viewInitialize);
         yield return StartCoroutine(HandleInteraptors());
+
+        guiIsActive = true;
+        inputIsActive = true;
 
         onGameEvent(GameState.startGame);
 
@@ -67,8 +73,15 @@ public class GameManager : Singleton<GameManager>
 
     void Update()
     {
-        ButtonActionQueue.instance.Trigger();
-        GUIQueue.Trigger();
+        if (inputIsActive)
+        {
+            ButtonActionQueue.instance.Trigger();
+        }
+
+        if (guiIsActive)
+        {
+            GUIQueue.Trigger();
+        }
     }
 }
 

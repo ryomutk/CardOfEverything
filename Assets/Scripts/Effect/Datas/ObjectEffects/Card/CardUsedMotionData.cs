@@ -4,6 +4,7 @@ using System;
 
 namespace Effects
 {
+    [CreateAssetMenu]
     public class CardUsedMotionData : ObjectEffectData
     {
         public override ObjEffectName name{get{return ObjEffectName.card_motion_use;}}
@@ -24,7 +25,7 @@ namespace Effects
 
             public CardUsedMotion():base(true){}
 
-            public override void SetTarget(GameObject target)
+            public override void SetTarget(MonoBehaviour target)
             {
 
                 base.SetTarget(target);

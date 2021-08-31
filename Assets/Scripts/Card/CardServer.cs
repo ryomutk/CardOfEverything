@@ -7,7 +7,7 @@ using CardSystem;
 
 public class CardServer : Singleton<CardServer>, IInteraptor
 {
-    List<CardActionBase> actionList;
+    List<CardActionBase> actionList = new List<CardActionBase>();
     CardViewProfile[] profiles;
     [SerializeField] Card rawCardPref;
     [SerializeField] int initNum = 10;
@@ -34,14 +34,17 @@ public class CardServer : Singleton<CardServer>, IInteraptor
 
         yield return null;
 
-        var task = rawCardPool.CreatePoolAsync(rawCardPref, initNum);
-        yield return new WaitUntil(() => task.IsCompleted);
+        rawCardPool = new InstantPool<Card>(transform);
+
+        rawCardPool.CreatePool(rawCardPref, initNum);
+        yield return new WaitUntil(() => rawCardPool.state == ModuleState.ready);
 
 
-        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/CardActions/");
+        var fileNames = System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scriptables/CardAction/", "*.asset");
         for (int i = 0; i < fileNames.Length; i++)
         {
-            var request = Resources.LoadAsync("Scriptables/CardActions/" + fileNames[i]);
+            var filename = System.IO.Path.GetFileNameWithoutExtension(fileNames[i]);
+            var request = Resources.LoadAsync("Scriptables/CardAction/" + filename);
             yield return new WaitUntil(() => request.isDone);
             actionList.Add(request.asset as CardActionBase);
         }
@@ -53,7 +56,7 @@ public class CardServer : Singleton<CardServer>, IInteraptor
     {
         var profile = GetProfile(id);
         var action = GetActionBase(id);
-        if (profile != null)
+        if (profile != null && action != null)
         {
             var instance = rawCardPool.GetObj();
             instance.Initialize(profile, action);
@@ -61,6 +64,21 @@ public class CardServer : Singleton<CardServer>, IInteraptor
             return instance;
         }
         //こいつは…バグカード的な?
+
+        return Instantiate(rawCardPref);
+    }
+
+    public Card GetCard(CardViewProfile profile)
+    {
+        var action = GetActionBase(profile.name);
+        if (action != null)
+        {
+            var instance = rawCardPool.GetObj();
+
+            instance.Initialize(profile, action);
+
+            return instance;
+        }
 
         return Instantiate(rawCardPref);
     }
@@ -79,7 +97,7 @@ public class CardServer : Singleton<CardServer>, IInteraptor
         return null;
     }
 
-    CardActionBase GetActionBase(CardName name)
+    public CardActionBase GetActionBase(CardName name)
     {
         for (int i = 0; i < actionList.Count; i++)
         {

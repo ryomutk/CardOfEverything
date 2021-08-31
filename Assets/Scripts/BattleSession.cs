@@ -4,32 +4,57 @@ using Actor;
 
 //現在のバトルの状況を保持し、
 //各種コンポーネントへのアクセスポイントになるActorのCardRouterみたいな？
+//ターン内の動きもこれを拡張して定義。
 public class BattleSession
 {
-    List<Character> characterInBattle;
-    List<Character> killedList;
+    protected List<Character> characterInBattle = new List<Character>();
+    protected List<Character> killedList = new List<Character>();
     BattleField field;
     public event System.Action<Character> OnCharacterKilled;
     public event System.Action<Character> OnCharacterSelected;
     public bool IfBattleEnd { get; private set; }
 
-    public BattleSession(SessionProfile profile,BattleField field)
+    public BattleSession(SessionProfile profile, BattleField field)
     {
         this.field = field;
-        field.OnCharacterSelected += (x) => OnCharacterSelected(x);
+        field.OnCharacterSelected += (x) => { };
 
-        characterInBattle.Add(PlayerManager.player);
+        if (PlayerManager.instance.playerNum == 1)
+        {
 
-        foreach(var enemy in profile.GetCharactersInBattle())
+            var player = PlayerManager.instance.GetPlayer(0);
+            AddCharacter(player.name);
+        }
+        else
+        {
+            //複数人拡張はまだ作ってないよ。
+            throw new System.NotImplementedException();
+        }
+
+        foreach (var enemy in profile.GetCharactersInBattle())
         {
             AddCharacter(enemy);
         }
     }
 
-    public Character AddCharacter(CharacterName name)
+    public virtual Character AddCharacter(CharacterName name)
     {
+        if(name == CharacterName.player)
+        {
+            if(PlayerManager.instance.playerNum != 1)
+            {
+                //まだ複数人拡張は()
+                throw new System.NotImplementedException();    
+            }
+
+            var player = PlayerManager.instance.GetPlayer(0);
+            characterInBattle.Add(player);
+
+            return player;
+        }
         var instance = CharacterServer.instance.GetCharacter(name);
         field.AddCharacter(instance);
+        characterInBattle.Add(instance);
         instance.Enter();
 
         instance.Status.OnDeath += (x) => OnKilled(x);
@@ -37,21 +62,20 @@ public class BattleSession
         return instance;
     }
 
-    void OnKilled(Character target)
+    protected virtual void OnKilled(Character target)
     {
         killedList.Add(target);
         characterInBattle.Remove(target);
-        CheckIfEnd();
     }
 
-    void CheckIfEnd()
+    protected virtual void CheckIfEnd()
     {
-        for(int i = 0; i < characterInBattle.Count;i++)
+        for (int i = 0; i < characterInBattle.Count; i++)
         {
             var target = characterInBattle[i];
             var result = PlayerManager.instance.IsPlayer(target);
 
-            if(!result)
+            if (!result)
             {
                 IfBattleEnd = false;
                 return;

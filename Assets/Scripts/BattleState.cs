@@ -1,6 +1,5 @@
 public enum TurnState
 {
-    notInBattle,
     turnStart,
     cardDraw,
     cardUsed,

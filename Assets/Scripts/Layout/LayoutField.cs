@@ -2,7 +2,7 @@ using UnityEngine;
 
 //GOを渡すとレイアウトしてくれるマン
 [DisallowMultipleComponent]
-public abstract class LayoutField<T>
+public abstract class LayoutField<T>:MonoBehaviour
 where T:MonoBehaviour
 {
     public abstract bool Place(T obj);

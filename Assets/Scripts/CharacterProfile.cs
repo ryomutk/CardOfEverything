@@ -1,21 +1,16 @@
 using UnityEngine;
 using System;
 using System.Linq;
+using System.Collections.Generic;
+using Actor;
+
 
 namespace Actor
 {
     [Serializable]
     public class CharacterProfile
     {
-        [SerializeField] CharacterName _name;
-        [SerializeField] int _hp = 30;
-        [SerializeField] int _strength = 50;
-        [SerializeField] int _dexterity = 30;
-        [SerializeField] int _diffence = 30;
-        [SerializeField] int _power = 16;
-        [SerializeField] int _mental = 32;
-        [SerializeField] int _magic = 50;
-        [SerializeField] int _casting = 50;
+
         [SerializeField] CardSystem.CardName[] _cards;
 
         //誰にでも共通してそんざいしているモーション
@@ -23,22 +18,40 @@ namespace Actor
         [SerializeField] ObjEffectName _exitMotionID;
         [SerializeField] ObjEffectName _deathMotionID;
         [SerializeField] TextEffectName _damageMotionID;
+        [SerializeField] TextureData _texData;
+        [SerializeField] CharacterName _name;
+        [SerializeField] List<CharacterStatesData> _statesList = new List<CharacterStatesData>();
 
-        public Sprite defaultThumbnail;
+        public Sprite defaultThumbnail { get; private set; }
+        public TextureData texData
+        {
+            get { return _texData; }
+            set
+            {
+                _texData = value;
+                //これちょっとやばいかな？
+                defaultThumbnail = SpriteConverter.DataToSprite(texData);
+            }
+        }
+
+        public List<CharacterStatesData> statesDataList { get { return _statesList; } }
         public CharacterName name { get { return _name; } set { _name = value; } }
-        public int hp { get { return _hp; } set { _hp = value; } }
-        public int strength { get { return _strength; } set { _strength = value; } }
-        public int dexterity { get { return _dexterity; } set { _dexterity = value; } }
-        public int diffence { get { return _diffence; } set { _diffence = value; } }
-        public int power { get { return _power; } set { _power = value; } }
-        public int mental { get { return _mental; } set { _mental = value; } }
-        public int magic { get { return _magic; } set { _magic = value; } }
-        public int casting { get { return _casting; } set { _casting = value; } }
         public CardSystem.CardName[] cards { get { return _cards; } set { _cards = value; } }
         public ObjEffectName enterMotionID { get { return _enterMotionID; } set { _enterMotionID = value; } }
         public ObjEffectName exitMotionID { get { return _exitMotionID; } set { _exitMotionID = value; } }
         public ObjEffectName deathMotionID { get { return _deathMotionID; } set { _deathMotionID = value; } }
         public TextEffectName damageMotionID { get { return _damageMotionID; } set { _damageMotionID = value; } }
+
+        public CharacterProfile()
+        {
+            CharacterStates[] states = System.Enum.GetValues(typeof(CharacterStates)) as CharacterStates[];
+            for (int i = 0; i < states.Length; i++)
+            {
+                var data = new CharacterStatesData(states[i]);
+                
+                statesDataList.Add(data);
+            }
+        }
 
 
         //今後Character側の初期化手法などが変わることも考えて、その際にここで対応できるようにこちら側で
@@ -46,34 +59,39 @@ namespace Actor
         //さらに、キャラのイベントにここで行動の呼び出しを書いておくことで
         //Motion何があるかをCharaが把握していなくてもよいようにする
         //ロード手法までデータに書くの、ちょっといいかもしれない。
-        public void LoadToCharacter(Character target)
+        public void LoadToCharacter(Character targetInstance)
         {
-            target.Status.Initialize();
-            target.Status.statusDictionary[CharacterStates.hp] = _hp;
-            target.Status.statusDictionary[CharacterStates.strength] = _strength;
-            target.Status.statusDictionary[CharacterStates.dexterity] = _dexterity;
-            target.Status.statusDictionary[CharacterStates.diffence] = _diffence;
-            target.Status.statusDictionary[CharacterStates.power] = _power;
-            target.Status.statusDictionary[CharacterStates.mental] = _mental;
-            target.Status.statusDictionary[CharacterStates.magic] = _magic;
-            target.Status.statusDictionary[CharacterStates.casting] = _casting;
+            targetInstance.name = name;
 
-            var enter = EffectServer.instance.GetObjEffect(_enterMotionID, target.gameObject);
-            target.OnEnter += (target) => BattleManager.instance.RegisterFX(enter);
 
-            var exit = EffectServer.instance.GetObjEffect(_exitMotionID, target.gameObject);
-            target.OnEnter += (target) => BattleManager.instance.RegisterFX(exit);
 
-            var death = EffectServer.instance.GetObjEffect(_deathMotionID, target.gameObject);
-            target.Status.OnDeath += (target) => BattleManager.instance.RegisterFX(death);
-
-            target.Status.OnModify += (x, y, z) => DamageAction(x, y, z);
-
-            LoadProfiles(target);
-
-            if(target.viewRenderer != null)
+            targetInstance.Status.Initialize();
+            for(int i  = 0; i < statesDataList.Count;i++)
             {
-                target.viewRenderer.sprite = defaultThumbnail;
+                targetInstance.Status.statusDictionary[statesDataList[i].state] = statesDataList[i].amount;
+            }
+
+            var enter = EffectServer.instance.GetObjEffect(_enterMotionID, targetInstance);
+            targetInstance.OnEnter += (target) => BattleManager.instance.RegisterFX(enter);
+
+            var exit = EffectServer.instance.GetObjEffect(_exitMotionID, targetInstance);
+            targetInstance.OnEnter += (target) => BattleManager.instance.RegisterFX(exit);
+
+            var death = EffectServer.instance.GetObjEffect(_deathMotionID, targetInstance);
+            targetInstance.Status.OnDeath += (target) => BattleManager.instance.RegisterFX(death);
+
+            targetInstance.Status.OnModify += (x, y, z) => DamageAction(x, y, z);
+
+            SetDeck(targetInstance);
+
+
+            if (targetInstance.viewRenderer != null)
+            {
+                if (defaultThumbnail == null)
+                {
+                    defaultThumbnail = SpriteConverter.DataToSprite(_texData);
+                }
+                targetInstance.viewRenderer.sprite = defaultThumbnail;
             }
         }
 
@@ -86,15 +104,28 @@ namespace Actor
             }
         }
 
-        void LoadProfiles(Character target)
+        void SetDeck(Character target)
         {
-            for (int i = 0; i < cards.Length; i++)
-            {
-                var name = cards[i];
-                var profile = CardServer.instance.GetProfile(name);
+            BattleManager.instance.deckHolder.RegisterCharacter(target);
+            var weightData = BattleManager.instance.deckHolder.GetWeightData(target);
 
-                target.cardList.Add(profile);
+            foreach (var card in cards)
+            {
+                weightData.AddCard(card);
             }
         }
+    }
+}
+
+//Serializeするためのクラス。Dictionaryの代わり。
+[Serializable]
+public class CharacterStatesData
+{
+    [SerializeField] public int amount{get;set;}
+    [SerializeField] public CharacterStates state{get;private set;}
+
+    public CharacterStatesData(CharacterStates state)
+    {
+        this.state = state;
     }
 }
