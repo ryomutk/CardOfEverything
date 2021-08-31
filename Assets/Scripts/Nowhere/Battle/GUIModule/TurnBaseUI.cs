@@ -37,9 +37,10 @@ public class TurnBaseUI
 
     public TurnBaseUI Clone(MonoBehaviour target)
     {
-        this.baseEffect = EffectServer.instance.GetObjEffect(baseEffectName, target);
-        updateCallback = (x) => UpdateCallback(x);
+        var clone = (TurnBaseUI)MemberwiseClone();
+        clone.baseEffect = EffectServer.instance.GetObjEffect(baseEffectName, target); 
+        clone.updateCallback = (x) => clone.UpdateCallback(x);
         
-        return (TurnBaseUI)MemberwiseClone();
+        return clone;
     }
 }

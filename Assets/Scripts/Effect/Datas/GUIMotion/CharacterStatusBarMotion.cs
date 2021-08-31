@@ -35,7 +35,7 @@ namespace Effects
                 var cSize = targetCharacter.viewRenderer.rectTransform.sizeDelta;
 
                 //0,5 0,5の時が真ん中(修正なし)であるのでこの計算。
-                offsetPosition = Vector2.Scale(offsetPosition, offset - Vector2.one / 2);
+                offsetPosition = Vector2.Scale(cSize, offset - Vector2.one / 2);
             }
 
             //ここで観測対象を設定。

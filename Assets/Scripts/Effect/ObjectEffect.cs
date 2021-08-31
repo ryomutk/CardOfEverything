@@ -22,7 +22,7 @@ namespace Effects
 
         public abstract void Execute(RendererGetter rendererGetter,AudioSource audioSource);
 
-        public ObjectEffect Clone()
+        public virtual ObjectEffect Clone()
         {
             return MemberwiseClone() as ObjectEffect;
         }
