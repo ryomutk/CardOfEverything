@@ -44,21 +44,19 @@ public class VisualEffectQueue : IInteraptor
 
         BattleManager.instance.RegisterInterapt(this);
 
-        while (queue.Count > 0)
+        for (int i = 0; i < queue.Count; i++)
         {
-            if (queue[0].dontDisturb)
+            if (queue[i].dontDisturb)
             {
-                var effect = queue[0];
+                var effect = queue[i];
                 effect.Execute(getterMan, audioSource);
                 yield return new WaitUntil(() => effect.compleated);
             }
             else
             {
-                var effect = queue[0];
+                var effect = queue[i];
                 effect.Execute(getterMan, audioSource);
             }
-
-            queue.RemoveAt(0);
         }
 
         yield return StartCoroutine(WaitForAllEffectCompleate());
@@ -67,7 +65,7 @@ public class VisualEffectQueue : IInteraptor
 
     IEnumerator WaitForAllEffectCompleate()
     {
-        while (queue.Count > 0)
+        while (queue.Count != 0)
         {
             yield return new WaitUntil(() => queue[0].compleated);
             queue.RemoveAt(0);

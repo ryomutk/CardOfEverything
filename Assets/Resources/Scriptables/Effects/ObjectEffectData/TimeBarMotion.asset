@@ -13,9 +13,14 @@ MonoBehaviour:
   m_Name: TimeBarMotion
   m_EditorClassIdentifier: 
   _timeBarMotion:
-    baseSprite: {fileID: 0}
+    baseSprite: {fileID: 21300000, guid: 501923ac8a2e75b4180d87b0528b173e, type: 3}
+    homingToTarget: 1
     hasEnterMotion: 1
     initialScale: 1
     isVertical: 0
+    defaultColor: {r: 0, g: 0.88751316, b: 1, a: 1}
+    enterDuration: 2
     changeDuration: 0.4
     changeEase: 6
+    defaultSizeDelta: {x: 100, y: 10}
+    offset: {x: 0.5, y: 0.5}

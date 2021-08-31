@@ -9,7 +9,7 @@ public delegate void CharacterAction(Character target);
 
 
 [RequireComponent(typeof(AudioSource), typeof(RendererGetter))]
-public class BattleManager : Singleton<BattleManager>
+public class BattleManager : Singleton<BattleManager>,IInteraptHandler
 {
     [SerializeField]SessionProfile sampleProfile;
     List<IInteraptor> interaptorQueue = new List<IInteraptor>();

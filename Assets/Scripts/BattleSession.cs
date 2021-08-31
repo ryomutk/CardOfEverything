@@ -14,11 +14,27 @@ public class BattleSession
     public event System.Action<Character> OnCharacterSelected;
     public bool IfBattleEnd { get; private set; }
 
+    System.Action<BattleState> initCallback;
+
     public BattleSession(SessionProfile profile, BattleField field)
     {
         this.field = field;
         field.OnCharacterSelected += (x) => { };
 
+        initCallback = (x) =>
+        {
+            if (x == BattleState.dataInitialize)
+            {
+                BattleInitialize(profile);
+            }
+        };
+
+        BattleManager.instance.OnBattleEvent += initCallback;
+
+    }
+
+    public void BattleInitialize(SessionProfile profile)
+    {
         if (PlayerManager.instance.playerNum == 1)
         {
 
@@ -35,16 +51,18 @@ public class BattleSession
         {
             AddCharacter(enemy);
         }
+
+        BattleManager.instance.OnBattleEvent -= initCallback;
     }
 
     public virtual Character AddCharacter(CharacterName name)
     {
-        if(name == CharacterName.player)
+        if (name == CharacterName.player)
         {
-            if(PlayerManager.instance.playerNum != 1)
+            if (PlayerManager.instance.playerNum != 1)
             {
                 //まだ複数人拡張は()
-                throw new System.NotImplementedException();    
+                throw new System.NotImplementedException();
             }
 
             var player = PlayerManager.instance.GetPlayer(0);

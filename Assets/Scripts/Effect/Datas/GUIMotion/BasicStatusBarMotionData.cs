@@ -7,8 +7,8 @@ namespace Effects
     [CreateAssetMenu(menuName = "GUIMotionData/BasicStatusBarMotionData")]
     public class BasicStatusBarMotionData : CharacterStatusBarMotionData
     {
-        public override GUIEffectName name { get {return _name;} }
-        [SerializeField] GUIEffectName _name;
+        public override ObjEffectName name { get { return _name; } }
+        [SerializeField] ObjEffectName _name;
         [SerializeField] HpBarMotion _hpBarMotion;
         protected override ObjectEffect cloneBase { get { return _hpBarMotion; } }
 
@@ -29,7 +29,12 @@ namespace Effects
             protected override void SetTargetNumNormalized()
             {
                 var defaultAmount = CharacterServer.instance.GetCharacterDefault(targetCharacter.name, targetState);
-                targetNumNormalized = () => targetCharacter.Status.statusDictionary[targetState] / defaultAmount;
+                targetNumNormalized = () =>
+                {
+                    var nowAmount = targetCharacter.Status.statusDictionary[targetState];
+                    return nowAmount/defaultAmount;
+                };
+                Debug.Log("targetNumSet:" + targetCharacter.name);
             }
 
             public override void Execute(RendererGetter rendererGetter, AudioSource audioSource)

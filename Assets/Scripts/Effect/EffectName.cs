@@ -6,6 +6,10 @@ public enum ObjEffectName
     card_motion_enter,
     card_motion_exit,
     card_motion_use,
+    spriteSliderMotion,
+    hpbarMotion,
+    timeBarMotion
+
 }
 
 public enum GUIEffectName
@@ -14,10 +18,7 @@ public enum GUIEffectName
     card_motion_selected,
     card_push_down,
     card_hover,
-    card_back_to_start,
-    spriteSliderMotion,
-    hpbarMotion,
-    timeBarMotion
+    card_back_to_start
 }
 
 public enum ScreenEffectName

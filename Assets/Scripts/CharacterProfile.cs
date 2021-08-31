@@ -121,8 +121,10 @@ namespace Actor
 [Serializable]
 public class CharacterStatesData
 {
-    [SerializeField] public int amount{get;set;}
-    [SerializeField] public CharacterStates state{get;private set;}
+    [SerializeField] int _amount;
+    [SerializeField] CharacterStates _state;
+    [SerializeField] public int amount{get{return _amount;}set{_amount = value;}}
+    [SerializeField] public CharacterStates state{get{return _state;} set{_state = value;}}
 
     public CharacterStatesData(CharacterStates state)
     {

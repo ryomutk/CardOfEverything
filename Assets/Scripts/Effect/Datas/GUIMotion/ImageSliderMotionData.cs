@@ -8,7 +8,7 @@ namespace Effects
 {
     //数値(Normalized)でImageの長さを変えるマン。
     //観測するための数字が必要なので継承して使おう。
-    public abstract class ImageSliderMotionData : GUIMotionData
+    public abstract class ImageSliderMotionData : ObjectEffectData
     {
 
         [SerializeField]
@@ -25,14 +25,21 @@ namespace Effects
             float lastScale;
             //出現時にうにょーんってするか
             [SerializeField] bool hasEnterMotion = true;
-            [SerializeField] float initialScale;
+            [SerializeField] float initialScale = 1;
             //縦か？(変えるScaleがYか？と等価)
             [SerializeField] bool isVertical = false;
-            [SerializeField] protected Color defaultColor;
+            [SerializeField] protected Color defaultColor = Color.black;
             [SerializeField, ShowIf("hasEnterMotion")] float enterDuration = 2;
             [SerializeField] float changeDuration;
             [SerializeField] Ease changeEase = Ease.OutQuad;
-            public override bool compleated { get; protected set; }
+            [SerializeField] Vector2 defaultSizeDelta = new Vector2(100, 10);
+
+            /// <summary>
+            /// 注意！お前は無視される。
+            /// </summary>
+            /// <value></value>
+            public override bool compleated { get{return true;} protected set{} }
+            bool entering = false;
 
             protected ImageSliderMotion() : base(false)
             { }
@@ -40,63 +47,102 @@ namespace Effects
             public override void SetTarget(MonoBehaviour target)
             {
                 base.SetTarget(target);
-
+                //終わってなくても待つ必要がない。
+                compleated = true;
                 if (hasEnterMotion)
                 {
-                    dontDisturb = true;
+                    entering = true;
                 }
+            }
+
+            void InitBarView()
+            {
+                if (hasEnterMotion)
+                {
+                    if (isVertical)
+                    {
+                        targetRenderer.transform.localScale = new Vector3(1, 0, 1);
+                    }
+                    else
+                    {
+                        targetRenderer.transform.localScale = new Vector3(0, 1, 1);
+                    }
+                }
+                else
+                {
+                    if (initialScale != 1)
+                    {
+                        if (isVertical)
+                        {
+                            targetRenderer.transform.localScale = new Vector3(1, initialScale, 1);
+                        }
+                        else
+                        {
+                            targetRenderer.transform.localScale = new Vector3(initialScale, 1, 1);
+                        }
+                    }
+                }
+
+                targetRenderer.rectTransform.sizeDelta = defaultSizeDelta;
             }
 
             public override void Execute(RendererGetter rendererGetter, AudioSource audioSource)
             {
-                compleated = false;
 
-                if (dontDisturb == true)
+                if (entering)
                 {
+                    entering = false;
+                    
                     if (targetRenderer == null)
                     {
                         targetRenderer = rendererGetter.GetImageObj();
+                        InitBarView();
                         targetRenderer.sprite = baseSprite;
                         targetRenderer.color = defaultColor;
                     }
 
+                    //見た目が変わる前に次のが呼ばれる可能性があるので、それにも対応できるように概念上では先に代入しておく。
+                    lastScale = initialScale;
 
+                    Tween tw;
                     //これは直前にSetTargetされ、なおかつEnterMotionがあるときと等価。
                     if (isVertical)
                     {
-                        targetRenderer.rectTransform.DOScaleY(initialScale, enterDuration);
+                        tw = targetRenderer.rectTransform.DOScaleY(initialScale, enterDuration);
                     }
                     else
                     {
-                        targetRenderer.rectTransform.DOScaleX(initialScale, enterDuration);
+                        tw = targetRenderer.rectTransform.DOScaleX(initialScale, enterDuration);
                     }
 
-                    lastScale = initialScale;
-                    compleated = true;
-                    dontDisturb = false;
+                    tw.Play();
                 }
-
-                var targetNum = targetNumNormalized();
-                //変化していたら
-                if (lastScale != targetNum)
+                else
                 {
-                    Tween tw;
-                    //更新
-                    if (isVertical)
+                    Debug.Log("reading:" + target.name);
+                    var targetNum = targetNumNormalized();
+                    //変化していたら
+                    if (lastScale != targetNum)
                     {
-                        tw = targetRenderer.rectTransform.DOScaleY(targetNum, changeDuration);
+                        Tween tw;
+                        //更新
+                        if (isVertical)
+                        {
+                            tw = targetRenderer.rectTransform.DOScaleY(targetNum, changeDuration);
+                        }
+                        else
+                        {
+                            tw = targetRenderer.rectTransform.DOScaleX(targetNum, changeDuration);
+                        }
+
+                        tw.SetEase(changeEase);
+                        tw.Play();
+
+                        lastScale = targetNum;
                     }
-                    else
-                    {
-                        tw = targetRenderer.rectTransform.DOScaleX(targetNum, changeDuration);
-                    }
-
-                    tw.SetEase(changeEase);
-
-                    tw.Play().onComplete += () => compleated = true;
-
-                    lastScale = targetNum;
                 }
+
+
             }
         }
     }

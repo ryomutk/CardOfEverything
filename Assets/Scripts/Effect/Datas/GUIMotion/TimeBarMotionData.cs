@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace Effects
 {
-    [CreateAssetMenu(menuName = "GUIMotionData/TimeBarMotion")]
+    [CreateAssetMenu(menuName = "ObjectEffectData/TimeBarMotion")]
     public class TimeBarMotionData : CharacterStatusBarMotionData
     {
-        public override GUIEffectName name { get { return GUIEffectName.timeBarMotion; } }
+        public override ObjEffectName name { get { return ObjEffectName.timeBarMotion; } }
         [SerializeField] TimeBarMotion _timeBarMotion;
         protected override ObjectEffect cloneBase { get { return _timeBarMotion; } }
 
@@ -23,7 +23,7 @@ namespace Effects
                 }
                 else
                 {
-                    Debug.LogWarning("I am only for Nowhere battle session");
+                    Debug.LogError("I am only for Nowhere battle session");
                 }
             }
         }

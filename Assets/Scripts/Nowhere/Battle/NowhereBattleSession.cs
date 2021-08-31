@@ -35,9 +35,10 @@ public class NowhereBattleSession : BattleSession
         return instance;
     }
 
-    public int GetRemainTimeNormalized(Character character)
+    public float GetRemainTimeNormalized(Character character)
     {
-        return remainingTimes[character] / defaultDuration;
+        var num =remainingTimes[character] / defaultDuration;
+        return num;
     }
 
     public void ModifyCoolTime(Character character, int amount)

@@ -35,6 +35,12 @@ public class DeckWeightData
     public List<CardName> nameList { get; private set; }
     public List<int> weightList { get; private set; }
 
+    public DeckWeightData()
+    {
+        nameList = new List<CardName>();
+        weightList = new List<int>();
+    }
+
     public void AddCard(CardName name)
     {
         var weight = CardServer.instance.GetProfile(name).defaultWeight;

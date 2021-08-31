@@ -5,4 +5,10 @@ public class InteraptTask:IInteraptor
     {
         finished = false;
     }
+
+    public InteraptTask (IInteraptHandler handler)
+    {
+        finished = false;
+        handler.RegisterInterapt(this);
+    }
 }

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RendererGetter), typeof(AudioSource))]
-public class GameManager : Singleton<GameManager>
+public class GameManager : Singleton<GameManager>,IInteraptHandler
 {
     public event Action<GameState> onGameEvent;
     VisualEffectQueue GUIQueue;
@@ -17,7 +17,7 @@ public class GameManager : Singleton<GameManager>
 
     void Start()
     {
-        //        onGameEvent += (x) => Debug.Log("GamEv:"+x);
+        //onGameEvent += (x) => Debug.Log("GamEv:"+x);
 
 
         var renderer = GetComponent<RendererGetter>();

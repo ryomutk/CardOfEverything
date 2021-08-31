@@ -12,17 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fddf77cbb82ff17439c82b7a5b92046f, type: 3}
   m_Name: HPBarMotion
   m_EditorClassIdentifier: 
-  _name: 0
+  _name: 5
   _hpBarMotion:
-    baseSprite: {fileID: 0}
+    baseSprite: {fileID: 21300000, guid: 501923ac8a2e75b4180d87b0528b173e, type: 3}
     homingToTarget: 1
     hasEnterMotion: 1
-    initialScale: 0
+    initialScale: 1
     isVertical: 0
-    defaultColor: {r: 0, g: 0, b: 0, a: 0}
+    defaultColor: {r: 0.4308473, g: 0.8867924, b: 0.5632196, a: 1}
     enterDuration: 2
     changeDuration: 0
     changeEase: 6
-    offset: {x: 0.5, y: 0.5}
+    defaultSizeDelta: {x: 100, y: 10}
+    offset: {x: 0.5, y: 0}
     lowHpColor: {r: 1, g: 0, b: 0, a: 1}
-    targetState: 0
+    targetState: 1

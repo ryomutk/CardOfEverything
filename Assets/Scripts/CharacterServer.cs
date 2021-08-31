@@ -11,7 +11,7 @@ public class CharacterServer : Singleton<CharacterServer>, IInteraptor
     Utility.ObjPool.InstantPool<Character> characterPool;
     [SerializeField] int initNum = 10;
 
-    [SerializeField] TurnBaseGUI[] additionalGUICloneBase;
+    [SerializeField] TurnBaseUI[] additionalGUICloneBase;
 
 
     public bool finished { get; private set; }

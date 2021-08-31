@@ -5,14 +5,15 @@ using System.Linq;
 //Turnの中で動かしたいUIの、
 //アップデートタイミングを保持し、
 //GameManagerに登録登録
+//ちなみにTurnBaseなのでもちろんGUIではなくObjectEffect
 [System.Serializable]
-public class TurnBaseGUI
+public class TurnBaseUI
 {
     [SerializeField] List<TurnState> _updateOn;
-    [SerializeField] GUIEffectName _baseEffectName;
+    [SerializeField] ObjEffectName _baseEffectName;
     List<TurnState> updateOn { get { return _updateOn; } set { updateOn = value; } }
 
-    GUIEffectName baseEffectName { get { return _baseEffectName; } set { _baseEffectName = value; } }
+    ObjEffectName baseEffectName { get { return _baseEffectName; } set { _baseEffectName = value; } }
     Effects.IVisualEffect baseEffect;
     System.Action<TurnState> updateCallback;
 
@@ -20,7 +21,7 @@ public class TurnBaseGUI
     {
         if (updateOn.Contains(state))
         {
-            GameManager.instance.RegisterGUIMotion(baseEffect);
+            BattleManager.instance.RegisterFX(baseEffect);
         }
     }
 
@@ -34,11 +35,11 @@ public class TurnBaseGUI
         BattleManager.instance.OnTurnEvent -= updateCallback;
     }
 
-    public TurnBaseGUI Clone(MonoBehaviour target)
+    public TurnBaseUI Clone(MonoBehaviour target)
     {
-        this.baseEffect = EffectServer.instance.GetGUIMotion(baseEffectName, target);
+        this.baseEffect = EffectServer.instance.GetObjEffect(baseEffectName, target);
         updateCallback = (x) => UpdateCallback(x);
         
-        return (TurnBaseGUI)MemberwiseClone();
+        return (TurnBaseUI)MemberwiseClone();
     }
 }

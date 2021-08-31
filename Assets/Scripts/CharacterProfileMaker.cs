@@ -19,7 +19,6 @@ public class CharacterProfileMaker : EditorWindow
 
     {
         GetWindow<CharacterProfileMaker>("CharacterMaker");
-        states = System.Enum.GetValues(typeof(CharacterStates)) as CharacterStates[];
     }
 
     static CharacterStates[] states;
@@ -33,6 +32,11 @@ public class CharacterProfileMaker : EditorWindow
         if (jsonProfile == null)
         {
             jsonProfile = new CharacterProfile();
+        }
+
+        if (states == null)
+        {
+            states = System.Enum.GetValues(typeof(CharacterStates)) as CharacterStates[];
         }
 
         using (new GUILayout.VerticalScope())
@@ -50,19 +54,23 @@ public class CharacterProfileMaker : EditorWindow
             }
 
             var sprite = (Sprite)EditorGUILayout.ObjectField(nowSprite, typeof(Sprite), false, options);
-            if(sprite != nowSprite)
+            if (sprite != nowSprite)
             {
                 nowSprite = sprite;
-                jsonProfile.texData = SpriteConverter.SpriteToData(sprite); 
+                jsonProfile.texData = SpriteConverter.SpriteToData(sprite);
             }
 
 
-            for(int i = 0;i < states.Length;i++)
+            for (int i = 0; i < states.Length; i++)
             {
+                if (i == 0)
+                {
+                    continue;
+                }
                 var state = jsonProfile.statesDataList[i].state.ToString();
                 jsonProfile.statesDataList[i].amount = EditorGUILayout.IntField(state, jsonProfile.statesDataList[i].amount);
             }
-            
+
             //多分これが一番簡単だと思います。
             showCards = EditorGUILayout.Foldout(showCards, "Cards");
             if (showCards)
@@ -101,7 +109,7 @@ public class CharacterProfileMaker : EditorWindow
                 else
                 {
                     //なんかあればひとつ前のやつを入れてあげる新設設計
-                    cardList.Add(cardList[i-1]);
+                    cardList.Add(cardList[i - 1]);
                 }
             }
 
