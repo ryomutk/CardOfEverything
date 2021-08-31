@@ -75,7 +75,7 @@ namespace Actor
             targetInstance.OnEnter += (target) => BattleManager.instance.RegisterFX(enter);
 
             var exit = EffectServer.instance.GetObjEffect(_exitMotionID, targetInstance);
-            targetInstance.OnEnter += (target) => BattleManager.instance.RegisterFX(exit);
+            targetInstance.OnExit += (target) => BattleManager.instance.RegisterFX(exit);
 
             var death = EffectServer.instance.GetObjEffect(_deathMotionID, targetInstance);
             targetInstance.Status.OnDeath += (target) => BattleManager.instance.RegisterFX(death);

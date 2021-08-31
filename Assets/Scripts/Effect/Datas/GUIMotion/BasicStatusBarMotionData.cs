@@ -34,7 +34,6 @@ namespace Effects
                     var nowAmount = targetCharacter.Status.statusDictionary[targetState];
                     return nowAmount/defaultAmount;
                 };
-                Debug.Log("targetNumSet:" + targetCharacter.name);
             }
 
             public override void Execute(RendererGetter rendererGetter, AudioSource audioSource)

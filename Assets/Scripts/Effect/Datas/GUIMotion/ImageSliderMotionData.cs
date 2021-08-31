@@ -119,7 +119,6 @@ namespace Effects
                 }
                 else
                 {
-                    Debug.Log("reading:" + target.name);
                     var targetNum = targetNumNormalized();
                     //変化していたら
                     if (lastScale != targetNum)
